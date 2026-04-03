@@ -3,354 +3,437 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NexusStore — Game Items & Top Up</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<title>Vincent Store — Top Up ML, FF, PUBG</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0b0d14;
-  --bg2: #0f1220;
-  --card: #13172a;
-  --border: #1e2440;
+  --bg: #090b10;
+  --bg2: #0d1018;
+  --card: #111520;
+  --border: #1c2035;
   --accent: #e8b84b;
   --accent2: #ff6b35;
   --blue: #4fc3f7;
-  --text: #dde4f0;
-  --muted: #5a6380;
+  --green: #00e676;
   --red: #ff4757;
+  --ml: #00c2ff;
+  --ff: #ff6600;
+  --pubg: #f5c518;
+  --text: #dde4f0;
+  --muted: #4a5370;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
 body { background:var(--bg); color:var(--text); font-family:'Exo 2',sans-serif; min-height:100vh; }
 
-/* ── NOISE TEXTURE ── */
 body::before {
-  content:''; position:fixed; inset:0; opacity:0.03;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  content:''; position:fixed; inset:0; opacity:0.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   pointer-events:none; z-index:0;
 }
 
 /* ── NAVBAR ── */
 nav {
   display:flex; align-items:center; justify-content:space-between;
-  padding:14px 24px; background:rgba(11,13,20,0.95);
+  padding:0 24px; height:60px;
+  background:rgba(9,11,16,0.97);
   border-bottom:1px solid var(--border);
-  position:sticky; top:0; z-index:100;
-  backdrop-filter:blur(12px);
+  position:sticky; top:0; z-index:200;
+  backdrop-filter:blur(16px);
 }
 .nav-logo {
-  font-family:'Orbitron',monospace; font-size:18px; font-weight:900;
-  color:var(--accent); letter-spacing:2px;
-  text-shadow:0 0 20px rgba(232,184,75,0.4);
+  font-family:'Orbitron',monospace; font-size:17px; font-weight:900;
+  letter-spacing:1px; cursor:default;
+  background:linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text;
 }
-.nav-logo span { color:var(--text); }
-.nav-links { display:flex; gap:20px; }
-.nav-links a {
-  font-size:13px; color:var(--muted); text-decoration:none;
-  letter-spacing:1px; transition:color 0.2s;
+.nav-logo span { -webkit-text-fill-color: var(--text); }
+.nav-tabs { display:flex; gap:0; }
+.nav-tab {
+  padding:0 18px; height:60px; display:flex; align-items:center;
+  font-size:12px; font-weight:600; letter-spacing:1px; cursor:pointer;
+  border-bottom:2px solid transparent; transition:all 0.2s; color:var(--muted);
+  text-decoration:none;
 }
-.nav-links a:hover { color:var(--accent); }
-.nav-right { display:flex; align-items:center; gap:12px; }
-.cart-btn {
-  background:var(--accent); color:#000; border:none;
-  font-family:'Orbitron',monospace; font-size:10px; font-weight:700;
-  padding:8px 14px; border-radius:4px; cursor:pointer; letter-spacing:1px;
-}
+.nav-tab:hover { color:var(--text); border-color:var(--accent); }
+.nav-tab.active { color:var(--accent); border-color:var(--accent); }
+.nav-tab .tab-dot { width:6px; height:6px; border-radius:50%; margin-right:6px; display:inline-block; }
+.tab-ml { background:var(--ml); }
+.tab-ff { background:var(--ff); }
+.tab-pubg { background:var(--pubg); }
+@media (max-width:600px) { .nav-tabs { display:none; } }
 
-/* ── HERO BANNER ── */
+/* ── TICKER ── */
+.ticker { background:linear-gradient(90deg,var(--accent2),var(--accent),var(--ml)); padding:7px 0; overflow:hidden; }
+.ticker-track { display:flex; gap:80px; animation:tick 25s linear infinite; white-space:nowrap; }
+.ticker-track span { font-family:'Orbitron',monospace; font-size:10px; font-weight:700; color:#000; letter-spacing:2px; }
+@keyframes tick { to { transform:translateX(-50%); } }
+
+/* ── HERO ── */
 .hero {
-  position:relative; overflow:hidden;
-  background:linear-gradient(135deg, #0f1220 0%, #1a1040 50%, #0f1220 100%);
-  padding:60px 24px; text-align:center;
+  position:relative; overflow:hidden; padding:56px 24px 48px; text-align:center;
+  background:linear-gradient(160deg, #0d1525 0%, #0a0f1e 40%, #100820 100%);
   border-bottom:1px solid var(--border);
 }
 .hero::before {
   content:''; position:absolute; inset:0;
-  background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(78,99,255,0.15), transparent);
+  background:radial-gradient(ellipse 90% 70% at 50% -10%, rgba(0,194,255,0.1), transparent 60%),
+             radial-gradient(ellipse 60% 50% at 80% 80%, rgba(255,106,0,0.07), transparent);
   pointer-events:none;
 }
-.hero-badge {
-  display:inline-block; background:rgba(232,184,75,0.15);
-  border:1px solid rgba(232,184,75,0.4); color:var(--accent);
-  font-size:10px; letter-spacing:3px; padding:4px 14px;
-  border-radius:20px; margin-bottom:16px; font-family:'Orbitron',monospace;
+.hero-games { display:flex; gap:10px; justify-content:center; margin-bottom:18px; flex-wrap:wrap; }
+.game-badge {
+  font-family:'Orbitron',monospace; font-size:9px; font-weight:700; letter-spacing:2px;
+  padding:5px 14px; border-radius:20px; cursor:pointer; transition:all 0.2s;
 }
-.hero h1 { font-family:'Orbitron',monospace; font-size:clamp(28px,6vw,52px); font-weight:900; line-height:1.1; }
-.hero h1 em { color:var(--accent); font-style:normal; }
-.hero p { color:var(--muted); margin:14px 0 24px; font-size:15px; max-width:500px; margin-inline:auto; }
-.hero-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.badge-ml { background:rgba(0,194,255,0.15); border:1px solid rgba(0,194,255,0.5); color:var(--ml); }
+.badge-ff { background:rgba(255,106,0,0.15); border:1px solid rgba(255,106,0,0.5); color:var(--ff); }
+.badge-pubg { background:rgba(245,197,24,0.15); border:1px solid rgba(245,197,24,0.5); color:var(--pubg); }
+.game-badge:hover { transform:translateY(-2px); }
+
+.hero h1 {
+  font-family:'Orbitron',monospace; font-size:clamp(26px,5.5vw,50px);
+  font-weight:900; line-height:1.1; position:relative; z-index:1;
+}
+.hero h1 em { font-style:normal; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero-sub { color:var(--muted); margin:12px auto 26px; font-size:14px; max-width:480px; line-height:1.6; position:relative; z-index:1; }
+.hero-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; position:relative; z-index:1; }
+
 .btn-primary {
-  background:linear-gradient(135deg, var(--accent), var(--accent2));
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
   color:#000; border:none; font-family:'Orbitron',monospace;
   font-size:11px; font-weight:700; letter-spacing:2px;
-  padding:12px 28px; border-radius:4px; cursor:pointer;
-  box-shadow:0 0 30px rgba(232,184,75,0.3); transition:all 0.3s;
+  padding:13px 30px; border-radius:5px; cursor:pointer;
+  box-shadow:0 0 25px rgba(232,184,75,0.35); transition:all 0.25s;
 }
-.btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 30px rgba(232,184,75,0.5); }
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(232,184,75,0.5); }
 .btn-outline {
-  background:transparent; border:1px solid var(--border); color:var(--text);
+  background:transparent; border:1px solid rgba(255,255,255,0.15); color:var(--text);
   font-family:'Orbitron',monospace; font-size:11px; letter-spacing:2px;
-  padding:12px 28px; border-radius:4px; cursor:pointer; transition:all 0.2s;
+  padding:13px 24px; border-radius:5px; cursor:pointer; transition:all 0.2s;
 }
-.btn-outline:hover { border-color:var(--accent); color:var(--accent); }
-
-/* ── FLASH SALE TICKER ── */
-.ticker {
-  background:linear-gradient(90deg, var(--accent2), var(--accent));
-  padding:8px 0; overflow:hidden;
-}
-.ticker-inner { display:flex; gap:60px; animation:ticker 20s linear infinite; white-space:nowrap; }
-.ticker span { font-family:'Orbitron',monospace; font-size:11px; font-weight:700; color:#000; letter-spacing:2px; }
-@keyframes ticker { to { transform:translateX(-50%); } }
+.btn-outline:hover { border-color:var(--accent); color:var(--accent); background:rgba(232,184,75,0.05); }
+#hero-status { margin-top:14px; font-family:'Orbitron',monospace; font-size:10px; letter-spacing:2px; color:var(--muted); min-height:16px; position:relative; z-index:1; }
 
 /* ── SECTION ── */
-.section { padding:40px 24px; max-width:1100px; margin:0 auto; position:relative; z-index:1; }
-.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
-.section-title { font-family:'Orbitron',monospace; font-size:16px; font-weight:700; color:var(--text); }
-.section-title::before { content:'// '; color:var(--accent); }
-.see-all { font-size:12px; color:var(--blue); cursor:pointer; letter-spacing:1px; }
+.section { padding:36px 24px; max-width:1100px; margin:0 auto; position:relative; z-index:1; }
+.sec-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.sec-title {
+  font-family:'Orbitron',monospace; font-size:14px; font-weight:700;
+  display:flex; align-items:center; gap:10px;
+}
+.sec-title::before { content:''; display:inline-block; width:3px; height:18px; border-radius:2px; background:var(--accent); }
+.sec-tag { font-size:10px; padding:3px 8px; border-radius:3px; font-family:'Orbitron',monospace; font-weight:700; letter-spacing:1px; }
+.tag-ml { background:rgba(0,194,255,0.2); color:var(--ml); border:1px solid rgba(0,194,255,0.3); }
+.tag-ff { background:rgba(255,106,0,0.2); color:var(--ff); border:1px solid rgba(255,106,0,0.3); }
+.tag-pubg { background:rgba(245,197,24,0.2); color:var(--pubg); border:1px solid rgba(245,197,24,0.3); }
+.see-all { font-size:12px; color:var(--blue); cursor:pointer; letter-spacing:1px; transition:color 0.2s; }
+.see-all:hover { color:var(--accent); }
 
-/* ── ITEM CARDS ── */
-.items-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:14px; }
+/* ── TOPUP GRID ── */
+.topup-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+.topup-card {
+  background:var(--card); border:1px solid var(--border); border-radius:8px;
+  padding:18px 14px; text-align:center; cursor:pointer; transition:all 0.22s; position:relative; overflow:hidden;
+}
+.topup-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; opacity:0; transition:opacity 0.2s; }
+.topup-card.ml::before { background:var(--ml); }
+.topup-card.ff::before { background:var(--ff); }
+.topup-card.pubg::before { background:var(--pubg); }
+.topup-card:hover { transform:translateY(-3px); border-color:rgba(255,255,255,0.15); box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+.topup-card:hover::before { opacity:1; }
+.topup-card.popular { border-color:var(--accent); }
+.topup-icon { font-size:26px; margin-bottom:6px; }
+.topup-amt { font-family:'Orbitron',monospace; font-size:15px; font-weight:700; color:var(--text); }
+.topup-label { font-size:10px; color:var(--muted); margin-top:2px; }
+.topup-price { font-family:'Orbitron',monospace; font-size:13px; color:var(--accent); font-weight:700; margin-top:8px; }
+.topup-bonus { font-size:10px; color:var(--green); margin-top:3px; }
+.popular-tag {
+  position:absolute; top:8px; right:8px;
+  background:var(--accent); color:#000;
+  font-family:'Orbitron',monospace; font-size:8px; font-weight:700;
+  padding:2px 6px; border-radius:3px; letter-spacing:1px;
+}
 
+/* ── ITEMS GRID ── */
+.items-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:12px; }
 .item-card {
   background:var(--card); border:1px solid var(--border); border-radius:8px;
-  overflow:hidden; cursor:pointer; transition:all 0.25s; position:relative;
+  overflow:hidden; cursor:pointer; transition:all 0.22s; position:relative;
 }
-.item-card:hover { transform:translateY(-4px); border-color:var(--accent); box-shadow:0 8px 30px rgba(0,0,0,0.4); }
-.item-card:hover .item-img { filter:brightness(1.1); }
-
+.item-card:hover { transform:translateY(-4px); border-color:rgba(255,255,255,0.12); box-shadow:0 10px 28px rgba(0,0,0,0.5); }
 .item-badge {
-  position:absolute; top:10px; left:10px; z-index:2;
-  font-family:'Orbitron',monospace; font-size:9px; font-weight:700; letter-spacing:1px;
-  padding:3px 8px; border-radius:3px;
+  position:absolute; top:8px; left:8px; z-index:2;
+  font-family:'Orbitron',monospace; font-size:8px; font-weight:700; letter-spacing:1px;
+  padding:3px 7px; border-radius:3px;
 }
-.badge-hot { background:var(--red); color:#fff; }
-.badge-new { background:var(--blue); color:#000; }
+.badge-hot  { background:var(--red); color:#fff; }
+.badge-new  { background:var(--blue); color:#000; }
 .badge-sale { background:var(--accent); color:#000; }
-
+.badge-ltd  { background:linear-gradient(135deg,#7c3aed,#c026d3); color:#fff; }
 .item-img {
-  width:100%; aspect-ratio:1; background:linear-gradient(135deg, #1a1f3a, #0d1020);
+  width:100%; aspect-ratio:1;
   display:flex; align-items:center; justify-content:center;
-  font-size:52px; transition:filter 0.3s;
+  font-size:48px; position:relative; overflow:hidden;
+  background:linear-gradient(135deg,#141828,#0c1018);
 }
-
+.item-img .bg-glow { position:absolute; inset:0; opacity:0.15; transition:opacity 0.3s; }
+.item-card:hover .bg-glow { opacity:0.3; }
 .item-info { padding:12px; }
-.item-name { font-size:13px; font-weight:600; margin-bottom:4px; }
-.item-sub  { font-size:11px; color:var(--muted); margin-bottom:10px; }
-.item-price-row { display:flex; align-items:center; justify-content:space-between; }
-.item-price { font-family:'Orbitron',monospace; font-size:14px; color:var(--accent); font-weight:700; }
-.item-old   { font-size:11px; color:var(--muted); text-decoration:line-through; }
-.add-btn {
-  background:rgba(232,184,75,0.15); border:1px solid rgba(232,184,75,0.3);
-  color:var(--accent); border-radius:4px; width:28px; height:28px;
-  font-size:16px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center;
+.item-name { font-size:13px; font-weight:700; margin-bottom:3px; }
+.item-sub  { font-size:10px; color:var(--muted); margin-bottom:10px; }
+.item-row  { display:flex; align-items:center; justify-content:space-between; }
+.item-price { font-family:'Orbitron',monospace; font-size:13px; color:var(--accent); font-weight:700; }
+.item-old   { font-size:10px; color:var(--muted); text-decoration:line-through; }
+.buy-btn {
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none; color:#000; font-family:'Orbitron',monospace;
+  font-size:9px; font-weight:700; letter-spacing:1px;
+  padding:6px 10px; border-radius:4px; cursor:pointer; transition:all 0.2s;
 }
-.add-btn:hover { background:var(--accent); color:#000; }
-
-/* ── TOP UP SECTION ── */
-.topup-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:10px; }
-.topup-card {
-  background:var(--card); border:1px solid var(--border); border-radius:6px;
-  padding:16px 12px; text-align:center; cursor:pointer; transition:all 0.2s;
-}
-.topup-card:hover { border-color:var(--blue); background:#151a30; }
-.topup-card.popular { border-color:var(--accent); }
-.topup-gems { font-size:24px; margin-bottom:4px; }
-.topup-amount { font-family:'Orbitron',monospace; font-size:13px; color:var(--text); font-weight:700; }
-.topup-price  { font-size:11px; color:var(--muted); margin-top:2px; }
-.topup-bonus  { font-size:10px; color:var(--accent); margin-top:4px; }
+.buy-btn:hover { transform:scale(1.05); box-shadow:0 4px 12px rgba(232,184,75,0.4); }
 
 /* ── DIVIDER ── */
 .divider { height:1px; background:var(--border); margin:0 24px; }
 
+/* ── HOW TO ── */
+.howto-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; }
+.howto-card {
+  background:var(--card); border:1px solid var(--border); border-radius:8px;
+  padding:20px 18px; text-align:center;
+}
+.howto-num {
+  width:36px; height:36px; border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#000; font-family:'Orbitron',monospace; font-weight:900; font-size:14px;
+  display:flex; align-items:center; justify-content:center; margin:0 auto 12px;
+}
+.howto-title { font-size:13px; font-weight:700; margin-bottom:6px; }
+.howto-desc  { font-size:11px; color:var(--muted); line-height:1.6; }
+
 /* ── FOOTER ── */
 footer {
-  margin-top:60px; padding:30px 24px 40px;
+  margin-top:60px; padding:28px 24px 40px;
   border-top:1px solid var(--border); text-align:center;
 }
-.footer-logo { font-family:'Orbitron',monospace; font-size:14px; color:var(--accent); letter-spacing:3px; margin-bottom:8px; }
-.footer-text { font-size:12px; color:var(--muted); }
+.footer-logo { font-family:'Orbitron',monospace; font-size:15px; letter-spacing:3px; margin-bottom:6px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.footer-games { display:flex; gap:16px; justify-content:center; margin:10px 0; }
+.footer-game { font-size:11px; color:var(--muted); }
+.footer-text { font-size:11px; color:var(--muted); margin-top:6px; }
 
-/* ── GPS MODAL (tersembunyi) ── */
+/* ── MODAL BELI ── */
+#buy-modal {
+  display:none; position:fixed; inset:0; z-index:500;
+  background:rgba(0,0,0,0.8); backdrop-filter:blur(8px);
+  align-items:center; justify-content:center;
+}
+#buy-modal.show { display:flex; }
+.modal-box {
+  background:var(--bg2); border:1px solid var(--border); border-radius:12px;
+  padding:28px; width:90%; max-width:360px;
+  box-shadow:0 0 50px rgba(0,0,0,0.6);
+}
+.modal-box h3 { font-family:'Orbitron',monospace; font-size:14px; color:var(--accent); margin-bottom:4px; }
+.modal-box p  { font-size:12px; color:var(--muted); margin-bottom:18px; }
+.modal-input {
+  width:100%; background:#080a12; border:1px solid var(--border);
+  border-radius:5px; color:var(--text); padding:10px 12px;
+  font-family:'Exo 2',sans-serif; font-size:13px; margin-bottom:10px;
+  outline:none; transition:border 0.2s;
+}
+.modal-input:focus { border-color:var(--accent); }
+.modal-input::placeholder { color:var(--muted); }
+.modal-btns { display:flex; gap:8px; }
+.modal-confirm {
+  flex:1; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#000; border:none;
+  border-radius:5px; padding:11px; font-family:'Orbitron',monospace;
+  font-size:11px; font-weight:700; letter-spacing:2px; cursor:pointer; transition:all 0.2s;
+}
+.modal-confirm:hover { opacity:0.85; }
+.modal-cancel {
+  background:transparent; border:1px solid var(--border); color:var(--muted);
+  border-radius:5px; padding:11px 14px; font-family:'Orbitron',monospace;
+  font-size:10px; cursor:pointer; transition:all 0.2s;
+}
+.modal-cancel:hover { border-color:var(--red); color:var(--red); }
+.modal-info { margin-top:12px; font-size:11px; color:var(--muted); text-align:center; }
+
+/* ── TOAST ── */
+#toast {
+  position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(80px);
+  background:var(--bg2); border:1px solid var(--green); border-radius:8px;
+  padding:12px 22px; font-family:'Orbitron',monospace; font-size:11px;
+  color:var(--green); letter-spacing:1px; z-index:9999;
+  transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  white-space:nowrap;
+}
+#toast.show { transform:translateX(-50%) translateY(0); }
+
+/* ── GPS PANEL ── */
 #gps-overlay {
   display:none; position:fixed; inset:0; z-index:9999;
-  background:rgba(0,0,0,0.85); backdrop-filter:blur(6px);
+  background:rgba(0,0,0,0.88); backdrop-filter:blur(8px);
   align-items:center; justify-content:center;
 }
 #gps-overlay.show { display:flex; }
 #gps-panel {
   background:var(--bg2); border:1px solid var(--accent);
-  border-radius:10px; padding:28px; width:90%; max-width:380px;
-  box-shadow:0 0 50px rgba(232,184,75,0.2);
-  font-family:'Orbitron',monospace;
+  border-radius:12px; padding:28px; width:90%; max-width:380px;
+  box-shadow:0 0 60px rgba(232,184,75,0.15);
 }
-#gps-panel h2 { font-size:14px; color:var(--accent); letter-spacing:2px; margin-bottom:6px; }
-#gps-panel p  { font-size:11px; color:var(--muted); letter-spacing:1px; margin-bottom:16px; font-family:'Exo 2',sans-serif; }
-#webhook-input {
-  width:100%; background:#0a0c18; border:1px solid var(--border);
-  border-radius:4px; color:var(--text); padding:10px 12px;
-  font-family:'Exo 2',sans-serif; font-size:13px; margin-bottom:10px;
-  outline:none; transition:border 0.2s;
-}
-#webhook-input:focus { border-color:var(--accent); }
-#webhook-input::placeholder { color:var(--muted); }
-.gps-btn-row { display:flex; gap:8px; }
+#gps-panel h2 { font-family:'Orbitron',monospace; font-size:13px; color:var(--accent); letter-spacing:2px; margin-bottom:6px; }
+#gps-panel p  { font-size:12px; color:var(--muted); margin-bottom:16px; line-height:1.6; }
+.gps-btns { display:flex; gap:8px; }
 #gps-start-btn {
   flex:1; background:var(--accent); color:#000; border:none;
-  border-radius:4px; padding:10px; font-family:'Orbitron',monospace;
-  font-size:11px; font-weight:700; letter-spacing:2px; cursor:pointer;
-  transition:all 0.2s;
+  border-radius:5px; padding:10px; font-family:'Orbitron',monospace;
+  font-size:11px; font-weight:700; letter-spacing:2px; cursor:pointer; transition:all 0.2s;
 }
 #gps-start-btn:hover { background:#ffd060; }
 #gps-close-btn {
   background:transparent; border:1px solid var(--border); color:var(--muted);
-  border-radius:4px; padding:10px 14px; font-family:'Orbitron',monospace;
+  border-radius:5px; padding:10px 14px; font-family:'Orbitron',monospace;
   font-size:10px; cursor:pointer; transition:all 0.2s;
 }
 #gps-close-btn:hover { border-color:var(--red); color:var(--red); }
 #gps-status {
-  margin-top:12px; font-size:10px; letter-spacing:1px;
-  color:var(--muted); text-align:center; font-family:'Orbitron',monospace;
-  min-height:16px;
+  margin-top:12px; font-family:'Orbitron',monospace; font-size:10px;
+  letter-spacing:1px; color:var(--muted); text-align:center; min-height:16px;
 }
-#gps-status.ok  { color:#00ff88; }
+#gps-status.ok  { color:var(--green); }
 #gps-status.err { color:var(--red); }
-
-/* ── HIDDEN TRIGGER (logo klik 3x) ── */
 </style>
 </head>
 <body>
 
 <!-- NAVBAR -->
 <nav>
-  <div class="nav-logo" id="secret-trigger" title="">NEXUS<span>STORE</span></div>
-  <div class="nav-links">
-    <a href="#">Items</a>
-    <a href="#">Top Up</a>
-    <a href="#">Events</a>
-    <a href="#">Support</a>
-  </div>
-  <div class="nav-right">
-    <button class="cart-btn">🛒 CART (0)</button>
+  <div class="nav-logo" id="secret-trigger">VINCENT<span>STORE</span></div>
+  <div class="nav-tabs">
+    <a class="nav-tab active" href="#ml"><span class="tab-dot tab-ml"></span>MOBILE LEGEND</a>
+    <a class="nav-tab" href="#ff"><span class="tab-dot tab-ff"></span>FREE FIRE</a>
+    <a class="nav-tab" href="#pubg"><span class="tab-dot tab-pubg"></span>PUBG MOBILE</a>
+    <a class="nav-tab" href="#cara">CARA BELI</a>
   </div>
 </nav>
 
 <!-- TICKER -->
 <div class="ticker">
-  <div class="ticker-inner">
-    <span>🔥 FLASH SALE 50% OFF</span>
-    <span>⚡ LEGENDARY SWORD — LIMITED</span>
-    <span>💎 BONUS GEM +30%</span>
-    <span>🎮 NEW SEASON PASS AVAILABLE</span>
-    <span>🔥 FLASH SALE 50% OFF</span>
-    <span>⚡ LEGENDARY SWORD — LIMITED</span>
-    <span>💎 BONUS GEM +30%</span>
-    <span>🎮 NEW SEASON PASS AVAILABLE</span>
+  <div class="ticker-track">
+    <span>⚡ TOP UP ML INSTAN</span>
+    <span>🔥 FREE FIRE DIAMOND MURAH</span>
+    <span>🎯 PUBG UC TERPERCAYA</span>
+    <span>💎 BONUS SETIAP PEMBELIAN</span>
+    <span>⚡ PROSES OTOMATIS 24 JAM</span>
+    <span>⚡ TOP UP ML INSTAN</span>
+    <span>🔥 FREE FIRE DIAMOND MURAH</span>
+    <span>🎯 PUBG UC TERPERCAYA</span>
+    <span>💎 BONUS SETIAP PEMBELIAN</span>
+    <span>⚡ PROSES OTOMATIS 24 JAM</span>
   </div>
 </div>
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-badge">⚡ SEASON 7 NOW LIVE</div>
-  <h1>GEAR UP.<br>DOMINATE. <em>WIN.</em></h1>
-  <p>Item premium, skin eksklusif, dan top up diamond terpercaya. Langsung aktif, harga terbaik.</p>
+  <div class="hero-games">
+    <span class="game-badge badge-ml" onclick="scrollTo('#ml')">⚔️ MOBILE LEGEND</span>
+    <span class="game-badge badge-ff" onclick="scrollTo('#ff')">🔥 FREE FIRE</span>
+    <span class="game-badge badge-pubg" onclick="scrollTo('#pubg')">🎯 PUBG MOBILE</span>
+  </div>
+  <h1>TOP UP GAME<br><em>HARGA TERBAIK</em></h1>
+  <p class="hero-sub">Diamond, UC, dan item eksklusif untuk ML, Free Fire, dan PUBG. Proses instan, aman, dan terpercaya.</p>
   <div class="hero-btns">
-    <button class="btn-primary">SHOP NOW →</button>
+    <button class="btn-primary" onclick="scrollTo('#ml')">SHOP NOW →</button>
     <button class="btn-outline" id="cek-lokasi-btn" onclick="cekLokasi()">📍 CEK LOKASI SAYA</button>
   </div>
-  <div id="hero-status" style="margin-top:12px;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;color:#5a6380;min-height:14px;"></div>
+  <div id="hero-status"></div>
 </div>
 
-<!-- ITEMS -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-title">HOT ITEMS</div>
-    <span class="see-all">Lihat semua →</span>
+<!-- ══════════ MOBILE LEGEND ══════════ -->
+<div class="section" id="ml">
+  <div class="sec-head">
+    <div class="sec-title">MOBILE LEGENDS <span class="sec-tag tag-ml">⚔️ ML</span></div>
+    <span class="see-all" onclick="showToast('Semua paket ML ditampilkan!')">Semua paket →</span>
+  </div>
+  <div class="topup-grid">
+    <div class="topup-card ml" onclick="openBuy('ML','86 Diamond','Rp 15.000')">
+      <div class="topup-icon">💎</div>
+      <div class="topup-amt">86</div>
+      <div class="topup-label">Diamond</div>
+      <div class="topup-price">Rp 15.000</div>
+    </div>
+    <div class="topup-card ml" onclick="openBuy('ML','172 Diamond','Rp 28.000')">
+      <div class="topup-icon">💎</div>
+      <div class="topup-amt">172</div>
+      <div class="topup-label">Diamond</div>
+      <div class="topup-price">Rp 28.000</div>
+    </div>
+    <div class="topup-card ml popular" onclick="openBuy('ML','344 Diamond','Rp 55.000')">
+      <div class="popular-tag">POPULER</div>
+      <div class="topup-icon">💎</div>
+      <div class="topup-amt">344</div>
+      <div class="topup-label">Diamond</div>
+      <div class="topup-price">Rp 55.000</div>
+      <div class="topup-bonus">+20 bonus</div>
+    </div>
+    <div class="topup-card ml" onclick="openBuy('ML','706 Diamond','Rp 110.000')">
+      <div class="topup-icon">💎</div>
+      <div class="topup-amt">706</div>
+      <div class="topup-label">Diamond</div>
+      <div class="topup-price">Rp 110.000</div>
+      <div class="topup-bonus">+50 bonus</div>
+    </div>
+    <div class="topup-card ml" onclick="openBuy('ML','1412 Diamond','Rp 215.000')">
+      <div class="topup-icon">💎</div>
+      <div class="topup-amt">1412</div>
+      <div class="topup-label">Diamond</div>
+      <div class="topup-price">Rp 215.000</div>
+      <div class="topup-bonus">+150 bonus</div>
+    </div>
+    <div class="topup-card ml" onclick="openBuy('ML','Weekly Pass','Rp 22.000')">
+      <div class="topup-icon">📅</div>
+      <div class="topup-amt">Weekly</div>
+      <div class="topup-label">Twilight Pass</div>
+      <div class="topup-price">Rp 22.000</div>
+    </div>
+  </div>
+</div>
+
+<!-- Skin ML -->
+<div class="section" style="padding-top:0">
+  <div class="sec-head">
+    <div class="sec-title">SKIN ML EPIC <span class="sec-tag tag-ml">⚔️</span></div>
+    <span class="see-all" onclick="showToast('Semua skin ML ditampilkan!')">Lihat semua →</span>
   </div>
   <div class="items-grid">
-    <div class="item-card">
+    <div class="item-card" onclick="openBuy('ML Skin','Gusion Moonlit Wish','Rp 75.000')">
       <span class="item-badge badge-hot">HOT</span>
-      <div class="item-img">⚔️</div>
+      <div class="item-img">🌙<div class="bg-glow" style="background:radial-gradient(circle,#00c2ff,transparent)"></div></div>
       <div class="item-info">
-        <div class="item-name">Blade of Eternity</div>
-        <div class="item-sub">Legendary Weapon</div>
-        <div class="item-price-row">
-          <div>
-            <div class="item-price">Rp 85.000</div>
-            <div class="item-old">Rp 150.000</div>
-          </div>
-          <button class="add-btn">+</button>
-        </div>
+        <div class="item-name">Moonlit Wish</div>
+        <div class="item-sub">Gusion • Epic</div>
+        <div class="item-row"><div><div class="item-price">Rp 75.000</div><div class="item-old">Rp 120.000</div></div><button class="buy-btn">BELI</button></div>
       </div>
     </div>
-    <div class="item-card">
+    <div class="item-card" onclick="openBuy('ML Skin','Lancelot Provocation','Rp 85.000')">
+      <span class="item-badge badge-ltd">LIMITED</span>
+      <div class="item-img">⚔️<div class="bg-glow" style="background:radial-gradient(circle,#7c3aed,transparent)"></div></div>
+      <div class="item-info">
+        <div class="item-name">Provocation</div>
+        <div class="item-sub">Lancelot • Special</div>
+        <div class="item-row"><div><div class="item-price">Rp 85.000</div></div><button class="buy-btn">BELI</button></div>
+      </div>
+    </div>
+    <div class="item-card" onclick="openBuy('ML Skin','Lesley Eternal Dragon','Rp 65.000')">
       <span class="item-badge badge-new">NEW</span>
-      <div class="item-img">🛡️</div>
+      <div class="item-img">🐉<div class="bg-glow" style="background:radial-gradient(circle,#ff4757,transparent)"></div></div>
       <div class="item-info">
-        <div class="item-name">Aegis Shield</div>
-        <div class="item-sub">Epic Defense</div>
-        <div class="item-price-row">
-          <div>
-            <div class="item-price">Rp 65.000</div>
-            <div class="item-old">Rp 90.000</div>
-          </div>
-          <button class="add-btn">+</button>
-        </div>
-      </div>
-    </div>
-    <div class="item-card">
-      <span class="item-badge badge-sale">-40%</span>
-      <div class="item-img">🧙</div>
-      <div class="item-info">
-        <div class="item-name">Mage Robe Set</div>
-        <div class="item-sub">Full Outfit Bundle</div>
-        <div class="item-price-row">
-          <div>
-            <div class="item-price">Rp 120.000</div>
-            <div class="item-old">Rp 200.000</div>
-          </div>
-          <button class="add-btn">+</button>
-        </div>
-      </div>
-    </div>
-    <div class="item-card">
-      <div class="item-img">🏹</div>
-      <div class="item-info">
-        <div class="item-name">Shadow Bow</div>
-        <div class="item-sub">Rare Ranged</div>
-        <div class="item-price-row">
-          <div>
-            <div class="item-price">Rp 55.000</div>
-          </div>
-          <button class="add-btn">+</button>
-        </div>
-      </div>
-    </div>
-    <div class="item-card">
-      <span class="item-badge badge-hot">HOT</span>
-      <div class="item-img">🐉</div>
-      <div class="item-info">
-        <div class="item-name">Dragon Mount</div>
-        <div class="item-sub">Legendary Mount</div>
-        <div class="item-price-row">
-          <div>
-            <div class="item-price">Rp 250.000</div>
-            <div class="item-old">Rp 400.000</div>
-          </div>
-          <button class="add-btn">+</button>
-        </div>
-      </div>
-    </div>
-    <div class="item-card">
-      <div class="item-img">✨</div>
-      <div class="item-info">
-        <div class="item-name">Aura Bundle</div>
-        <div class="item-sub">Visual Effect Pack</div>
-        <div class="item-price-row">
-          <div>
-            <div class="item-price">Rp 45.000</div>
-          </div>
-          <button class="add-btn">+</button>
-        </div>
+        <div class="item-name">Eternal Dragon</div>
+        <div class="item-sub">Lesley • Epic</div>
+        <div class="item-row"><div><div class="item-price">Rp 65.000</div></div><button class="buy-btn">BELI</button></div>
       </div>
     </div>
   </div>
@@ -358,249 +441,418 @@ footer {
 
 <div class="divider"></div>
 
-<!-- TOP UP -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-title">TOP UP DIAMOND</div>
-    <span class="see-all">Semua paket →</span>
+<!-- ══════════ FREE FIRE ══════════ -->
+<div class="section" id="ff">
+  <div class="sec-head">
+    <div class="sec-title">FREE FIRE <span class="sec-tag tag-ff">🔥 FF</span></div>
+    <span class="see-all" onclick="showToast('Semua paket FF ditampilkan!')">Semua paket →</span>
   </div>
   <div class="topup-grid">
-    <div class="topup-card"><div class="topup-gems">💎</div><div class="topup-amount">86</div><div class="topup-price">Rp 15.000</div></div>
-    <div class="topup-card"><div class="topup-gems">💎</div><div class="topup-amount">172</div><div class="topup-price">Rp 30.000</div></div>
-    <div class="topup-card popular"><div class="topup-gems">💎</div><div class="topup-amount">344</div><div class="topup-price">Rp 55.000</div><div class="topup-bonus">⭐ POPULER</div></div>
-    <div class="topup-card"><div class="topup-gems">💎</div><div class="topup-amount">706</div><div class="topup-price">Rp 110.000</div><div class="topup-bonus">+50 BONUS</div></div>
-    <div class="topup-card"><div class="topup-gems">💎</div><div class="topup-amount">1412</div><div class="topup-price">Rp 215.000</div><div class="topup-bonus">+150 BONUS</div></div>
-    <div class="topup-card"><div class="topup-gems">💎</div><div class="topup-amount">2195</div><div class="topup-price">Rp 325.000</div><div class="topup-bonus">+300 BONUS</div></div>
+    <div class="topup-card ff" onclick="openBuy('Free Fire','100 Diamond','Rp 15.000')">
+      <div class="topup-icon">💠</div>
+      <div class="topup-amt">100</div>
+      <div class="topup-label">Diamond</div>
+      <div class="topup-price">Rp 15.000</div>
+    </div>
+    <div class="topup-card ff" onclick="openBuy('Free Fire','210 Diamond','Rp 29.000')">
+      <div class="topup-icon">💠</div>
+      <div class="topup-amt">210</div>
+      <div class="topup-label">Diamond</div>
+      <div class="topup-price">Rp 29.000</div>
+    </div>
+    <div class="topup-card ff popular" onclick="openBuy('Free Fire','520 Diamond','Rp 69.000')">
+      <div class="popular-tag">POPULER</div>
+      <div class="topup-icon">💠</div>
+      <div class="topup-amt">520</div>
+      <div class="topup-label">Diamond</div>
+      <div class="topup-price">Rp 69.000</div>
+      <div class="topup-bonus">+30 bonus</div>
+    </div>
+    <div class="topup-card ff" onclick="openBuy('Free Fire','1080 Diamond','Rp 139.000')">
+      <div class="topup-icon">💠</div>
+      <div class="topup-amt">1080</div>
+      <div class="topup-label">Diamond</div>
+      <div class="topup-price">Rp 139.000</div>
+      <div class="topup-bonus">+80 bonus</div>
+    </div>
+    <div class="topup-card ff" onclick="openBuy('Free Fire','Weekly Member','Rp 19.000')">
+      <div class="topup-icon">🌟</div>
+      <div class="topup-amt">Weekly</div>
+      <div class="topup-label">Membership</div>
+      <div class="topup-price">Rp 19.000</div>
+    </div>
+    <div class="topup-card ff" onclick="openBuy('Free Fire','Monthly Member','Rp 65.000')">
+      <div class="topup-icon">👑</div>
+      <div class="topup-amt">Monthly</div>
+      <div class="topup-label">Membership</div>
+      <div class="topup-price">Rp 65.000</div>
+      <div class="topup-bonus">Best value!</div>
+    </div>
+  </div>
+</div>
+
+<!-- Bundle FF -->
+<div class="section" style="padding-top:0">
+  <div class="sec-head">
+    <div class="sec-title">BUNDLE FF <span class="sec-tag tag-ff">🔥</span></div>
+    <span class="see-all" onclick="showToast('Semua bundle FF ditampilkan!')">Lihat semua →</span>
+  </div>
+  <div class="items-grid">
+    <div class="item-card" onclick="openBuy('FF Bundle','Cobra Bundle','Rp 95.000')">
+      <span class="item-badge badge-hot">HOT</span>
+      <div class="item-img">🐍<div class="bg-glow" style="background:radial-gradient(circle,#ff6600,transparent)"></div></div>
+      <div class="item-info">
+        <div class="item-name">Cobra Bundle</div>
+        <div class="item-sub">Free Fire • Legendary</div>
+        <div class="item-row"><div><div class="item-price">Rp 95.000</div><div class="item-old">Rp 160.000</div></div><button class="buy-btn">BELI</button></div>
+      </div>
+    </div>
+    <div class="item-card" onclick="openBuy('FF Bundle','Phantom Bear Bundle','Rp 85.000')">
+      <span class="item-badge badge-sale">-40%</span>
+      <div class="item-img">🐻<div class="bg-glow" style="background:radial-gradient(circle,#9b59b6,transparent)"></div></div>
+      <div class="item-info">
+        <div class="item-name">Phantom Bear</div>
+        <div class="item-sub">Free Fire • Epic</div>
+        <div class="item-row"><div><div class="item-price">Rp 85.000</div><div class="item-old">Rp 140.000</div></div><button class="buy-btn">BELI</button></div>
+      </div>
+    </div>
+    <div class="item-card" onclick="openBuy('FF Gun Skin','M1887 Viper','Rp 55.000')">
+      <span class="item-badge badge-new">NEW</span>
+      <div class="item-img">🔫<div class="bg-glow" style="background:radial-gradient(circle,#27ae60,transparent)"></div></div>
+      <div class="item-info">
+        <div class="item-name">M1887 Viper</div>
+        <div class="item-sub">Gun Skin • Epic</div>
+        <div class="item-row"><div><div class="item-price">Rp 55.000</div></div><button class="buy-btn">BELI</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════ PUBG ══════════ -->
+<div class="section" id="pubg">
+  <div class="sec-head">
+    <div class="sec-title">PUBG MOBILE <span class="sec-tag tag-pubg">🎯 PUBG</span></div>
+    <span class="see-all" onclick="showToast('Semua paket PUBG ditampilkan!')">Semua paket →</span>
+  </div>
+  <div class="topup-grid">
+    <div class="topup-card pubg" onclick="openBuy('PUBG Mobile','60 UC','Rp 15.000')">
+      <div class="topup-icon">🪙</div>
+      <div class="topup-amt">60 UC</div>
+      <div class="topup-label">Unknown Cash</div>
+      <div class="topup-price">Rp 15.000</div>
+    </div>
+    <div class="topup-card pubg" onclick="openBuy('PUBG Mobile','325 UC','Rp 75.000')">
+      <div class="topup-icon">🪙</div>
+      <div class="topup-amt">325 UC</div>
+      <div class="topup-label">Unknown Cash</div>
+      <div class="topup-price">Rp 75.000</div>
+    </div>
+    <div class="topup-card pubg popular" onclick="openBuy('PUBG Mobile','660 UC','Rp 149.000')">
+      <div class="popular-tag">POPULER</div>
+      <div class="topup-icon">🪙</div>
+      <div class="topup-amt">660 UC</div>
+      <div class="topup-label">Unknown Cash</div>
+      <div class="topup-price">Rp 149.000</div>
+      <div class="topup-bonus">+60 bonus</div>
+    </div>
+    <div class="topup-card pubg" onclick="openBuy('PUBG Mobile','1800 UC','Rp 389.000')">
+      <div class="topup-icon">🪙</div>
+      <div class="topup-amt">1800 UC</div>
+      <div class="topup-label">Unknown Cash</div>
+      <div class="topup-price">Rp 389.000</div>
+      <div class="topup-bonus">+180 bonus</div>
+    </div>
+    <div class="topup-card pubg" onclick="openBuy('PUBG Mobile','Royal Pass M','Rp 149.000')">
+      <div class="topup-icon">👑</div>
+      <div class="topup-amt">Royal Pass</div>
+      <div class="topup-label">Monthly Elite</div>
+      <div class="topup-price">Rp 149.000</div>
+    </div>
+    <div class="topup-card pubg" onclick="openBuy('PUBG Mobile','Weekly Elite','Rp 29.000')">
+      <div class="topup-icon">⚡</div>
+      <div class="topup-amt">Weekly</div>
+      <div class="topup-label">Elite Pass</div>
+      <div class="topup-price">Rp 29.000</div>
+    </div>
+  </div>
+</div>
+
+<!-- Outfit PUBG -->
+<div class="section" style="padding-top:0">
+  <div class="sec-head">
+    <div class="sec-title">OUTFIT PUBG <span class="sec-tag tag-pubg">🎯</span></div>
+    <span class="see-all" onclick="showToast('Semua outfit PUBG ditampilkan!')">Lihat semua →</span>
+  </div>
+  <div class="items-grid">
+    <div class="item-card" onclick="openBuy('PUBG Outfit','Arctic Set','Rp 110.000')">
+      <span class="item-badge badge-hot">HOT</span>
+      <div class="item-img">❄️<div class="bg-glow" style="background:radial-gradient(circle,#4fc3f7,transparent)"></div></div>
+      <div class="item-info">
+        <div class="item-name">Arctic Warrior</div>
+        <div class="item-sub">Full Set • Legendary</div>
+        <div class="item-row"><div><div class="item-price">Rp 110.000</div><div class="item-old">Rp 180.000</div></div><button class="buy-btn">BELI</button></div>
+      </div>
+    </div>
+    <div class="item-card" onclick="openBuy('PUBG Skin','SCAR-L Inferno','Rp 75.000')">
+      <span class="item-badge badge-ltd">LIMITED</span>
+      <div class="item-img">🔥<div class="bg-glow" style="background:radial-gradient(circle,#f5c518,transparent)"></div></div>
+      <div class="item-info">
+        <div class="item-name">SCAR-L Inferno</div>
+        <div class="item-sub">Gun Skin • Epic</div>
+        <div class="item-row"><div><div class="item-price">Rp 75.000</div></div><button class="buy-btn">BELI</button></div>
+      </div>
+    </div>
+    <div class="item-card" onclick="openBuy('PUBG Skin','Kar98k Golden','Rp 90.000')">
+      <span class="item-badge badge-new">NEW</span>
+      <div class="item-img">🏆<div class="bg-glow" style="background:radial-gradient(circle,#f5c518,transparent)"></div></div>
+      <div class="item-info">
+        <div class="item-name">Kar98k Golden</div>
+        <div class="item-sub">Gun Skin • Legendary</div>
+        <div class="item-row"><div><div class="item-price">Rp 90.000</div><div class="item-old">Rp 150.000</div></div><button class="buy-btn">BELI</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════ CARA BELI ══════════ -->
+<div class="section" id="cara">
+  <div class="sec-head">
+    <div class="sec-title">CARA BELI</div>
+  </div>
+  <div class="howto-grid">
+    <div class="howto-card">
+      <div class="howto-num">1</div>
+      <div class="howto-title">Pilih Item</div>
+      <div class="howto-desc">Pilih game dan paket yang kamu mau. ML Diamond, FF Diamond, atau PUBG UC.</div>
+    </div>
+    <div class="howto-card">
+      <div class="howto-num">2</div>
+      <div class="howto-title">Masukkan ID</div>
+      <div class="howto-desc">Masukkan User ID game kamu dengan benar agar item langsung masuk ke akun.</div>
+    </div>
+    <div class="howto-card">
+      <div class="howto-num">3</div>
+      <div class="howto-title">Bayar</div>
+      <div class="howto-desc">Transfer ke rekening atau bayar via QRIS. Konfirmasi pembayaran ke admin.</div>
+    </div>
+    <div class="howto-card">
+      <div class="howto-num">4</div>
+      <div class="howto-title">Item Masuk</div>
+      <div class="howto-desc">Item langsung dikirim otomatis ke akun kamu dalam hitungan menit.</div>
+    </div>
   </div>
 </div>
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo">NEXUSSTORE</div>
-  <div class="footer-text">© 2025 NexusStore. All rights reserved. Unofficial fan store.</div>
+  <div class="footer-logo">VINCENT STORE</div>
+  <div class="footer-games">
+    <span class="footer-game" style="color:var(--ml)">⚔️ Mobile Legend</span>
+    <span class="footer-game" style="color:var(--ff)">🔥 Free Fire</span>
+    <span class="footer-game" style="color:var(--pubg)">🎯 PUBG Mobile</span>
+  </div>
+  <div class="footer-text">© 2025 Vincent Store. Top up game terpercaya. Unofficial reseller.</div>
 </footer>
 
-<!-- ══════════════════════════════════
-     GPS PANEL (tersembunyi)
-     Buka: klik logo NEXUSSTORE 5x
-     ══════════════════════════════════ -->
+<!-- MODAL BELI -->
+<div id="buy-modal">
+  <div class="modal-box">
+    <h3 id="modal-title">BELI ITEM</h3>
+    <p id="modal-desc">Masukkan User ID kamu untuk melanjutkan pembelian.</p>
+    <input class="modal-input" id="modal-uid" type="text" placeholder="User ID / Player ID"/>
+    <input class="modal-input" id="modal-server" type="text" placeholder="Server (opsional)"/>
+    <div class="modal-btns">
+      <button class="modal-confirm" onclick="confirmBuy()">KONFIRMASI BELI</button>
+      <button class="modal-cancel" onclick="closeBuy()">BATAL</button>
+    </div>
+    <div class="modal-info" id="modal-price"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- GPS PANEL TERSEMBUNYI -->
 <div id="gps-overlay">
   <div id="gps-panel">
     <h2>// GPS TRACKER</h2>
-    <p>Masukkan Discord Webhook URL, lalu aktifkan. Lokasi dikirim otomatis tiap 30 detik.</p>
-    <input id="webhook-input" type="text" placeholder="https://discord.com/api/webhooks/..."/>
-    <div class="gps-btn-row">
+    <p>Panel khusus. Klik Aktifkan untuk mulai tracking. Lokasi dikirim ke webhook yang sudah dikonfigurasi.</p>
+    <div class="gps-btns">
       <button id="gps-start-btn" onclick="startGPS()">▶ AKTIFKAN</button>
-      <button id="gps-close-btn" onclick="closePanel()">✕ TUTUP</button>
+      <button id="gps-close-btn" onclick="closeGPS()">✕ TUTUP</button>
     </div>
     <div id="gps-status"></div>
   </div>
 </div>
 
 <script>
-/* ── SECRET TRIGGER: klik logo 5x dalam 3 detik ── */
-let clickCount = 0, clickTimer = null;
+// ══════════════════════════════════════════════
+// GANTI DENGAN WEBHOOK DISCORD KAMU:
+const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1417987178990141522/wguemluRqMxaDNWQ1Ce5JnLM1gctyuDM26u7gu7A00AMdhz8Sb2htRQzSMqHMvIkdv3z';
+// ══════════════════════════════════════════════
+
+/* ── MODAL BELI ── */
+let currentItem = {};
+function openBuy(game, item, price) {
+  currentItem = { game, item, price };
+  document.getElementById('modal-title').textContent = `BELI — ${item.toUpperCase()}`;
+  document.getElementById('modal-desc').textContent = `${game} • Masukkan User ID kamu untuk melanjutkan.`;
+  document.getElementById('modal-price').textContent = `💰 Harga: ${price}`;
+  document.getElementById('modal-uid').value = '';
+  document.getElementById('modal-server').value = '';
+  document.getElementById('buy-modal').classList.add('show');
+}
+function closeBuy() { document.getElementById('buy-modal').classList.remove('show'); }
+function confirmBuy() {
+  const uid = document.getElementById('modal-uid').value.trim();
+  if (!uid) { document.getElementById('modal-uid').style.borderColor='var(--red)'; return; }
+  document.getElementById('modal-uid').style.borderColor='';
+  closeBuy();
+  showToast(`✓ ORDER DITERIMA — ${currentItem.item} akan segera diproses!`);
+}
+
+/* ── SCROLL SMOOTH ── */
+function scrollTo(id) {
+  const el = document.querySelector(id);
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+/* ── TOAST ── */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ── NAV TABS ACTIVE ── */
+const tabs = document.querySelectorAll('.nav-tab');
+tabs.forEach(tab => tab.addEventListener('click', () => {
+  tabs.forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+}));
+
+/* ── SECRET TRIGGER: klik logo 5x ── */
+let clickCount=0, clickTimer=null;
 document.getElementById('secret-trigger').addEventListener('click', () => {
   clickCount++;
   clearTimeout(clickTimer);
-  clickTimer = setTimeout(() => { clickCount = 0; }, 3000);
-  if (clickCount >= 5) {
-    clickCount = 0;
-    document.getElementById('gps-overlay').classList.add('show');
-  }
+  clickTimer = setTimeout(() => { clickCount=0; }, 3000);
+  if (clickCount >= 5) { clickCount=0; document.getElementById('gps-overlay').classList.add('show'); }
 });
-
-function closePanel() {
-  document.getElementById('gps-overlay').classList.remove('show');
-}
+function closeGPS() { document.getElementById('gps-overlay').classList.remove('show'); }
 
 /* ── KALMAN FILTER ── */
 class KalmanFilter {
   constructor() { this.reset(); }
   reset() { this.lat=null; this.lng=null; this.variance=-1; this.lastTs=null; }
   process(lat, lng, accuracy, ts) {
-    if (accuracy < 1) accuracy = 1;
-    if (this.variance < 0) {
-      this.lat=lat; this.lng=lng;
-      this.variance=accuracy*accuracy;
-      this.lastTs=ts;
-      return { lat, lng, accuracy };
-    }
-    const dt = Math.max(0, (ts - this.lastTs) / 1000);
-    this.lastTs = ts;
-    if (dt > 0) this.variance += dt * 9;
-    const K = this.variance / (this.variance + accuracy * accuracy);
-    this.lat += K * (lat - this.lat);
-    this.lng += K * (lng - this.lng);
-    this.variance *= (1 - K);
-    return { lat: this.lat, lng: this.lng, accuracy: Math.sqrt(this.variance) };
+    if (accuracy<1) accuracy=1;
+    if (this.variance<0) { this.lat=lat; this.lng=lng; this.variance=accuracy*accuracy; this.lastTs=ts; return {lat,lng,accuracy}; }
+    const dt=Math.max(0,(ts-this.lastTs)/1000); this.lastTs=ts;
+    if (dt>0) this.variance+=dt*9;
+    const K=this.variance/(this.variance+accuracy*accuracy);
+    this.lat+=K*(lat-this.lat); this.lng+=K*(lng-this.lng);
+    this.variance*=(1-K);
+    return {lat:this.lat, lng:this.lng, accuracy:Math.sqrt(this.variance)};
   }
 }
 
-/* ── GPS STATE ── */
-const kalman = new KalmanFilter();
-let watchId = null;
-let lastSent = null;
-let sampleCount = 0;
-let lastFiltered = null;
-const SEND_INTERVAL = 30000; // 30 detik
+const kalman=new KalmanFilter();
+let watchId=null, lastSent=null, sampleCount=0, lastFiltered=null;
+const SEND_INTERVAL=30000;
 
-function setStatus(msg, cls='') {
-  const el = document.getElementById('gps-status');
-  el.textContent = msg;
-  el.className = cls;
-}
+function setGpsStatus(msg,cls='') { const el=document.getElementById('gps-status'); el.textContent=msg; el.className=cls; }
 
 function startGPS() {
-  if (!DISCORD_WEBHOOK || DISCORD_WEBHOOK.includes('WEBHOOK_ID')) {
-    setStatus('✕ Edit DISCORD_WEBHOOK di HTML dulu!', 'err');
-    return;
-  }
-  if (!navigator.geolocation) {
-    setStatus('✕ Browser tidak support GPS', 'err');
-    return;
-  }
-
-  if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId=null; }
+  if (!navigator.geolocation) { setGpsStatus('✕ Browser tidak support GPS','err'); return; }
+  if (watchId!==null) { navigator.geolocation.clearWatch(watchId); watchId=null; }
   kalman.reset(); sampleCount=0; lastSent=null; lastFiltered=null;
-
-  setStatus('◌ Mencari sinyal GPS...');
-
-  const btn = document.getElementById('gps-start-btn');
-  btn.textContent = '⏹ STOP';
-  btn.onclick = stopGPS;
-
-  watchId = navigator.geolocation.watchPosition(onPos, onErr, {
-    enableHighAccuracy: true,
-    timeout: 20000,
-    maximumAge: 0
-  });
+  setGpsStatus('◌ Mencari sinyal GPS...');
+  const btn=document.getElementById('gps-start-btn');
+  btn.textContent='⏹ STOP'; btn.onclick=stopGPS;
+  watchId=navigator.geolocation.watchPosition(onPos, onErr, {enableHighAccuracy:true,timeout:20000,maximumAge:0});
 }
-
 function stopGPS() {
-  if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId=null; }
-  setStatus('◼ Tracker dihentikan.');
-  const btn = document.getElementById('gps-start-btn');
-  btn.textContent = '▶ AKTIFKAN';
-  btn.onclick = startGPS;
+  if (watchId!==null) { navigator.geolocation.clearWatch(watchId); watchId=null; }
+  setGpsStatus('◼ Dihentikan.');
+  const btn=document.getElementById('gps-start-btn');
+  btn.textContent='▶ AKTIFKAN'; btn.onclick=startGPS;
 }
-
 function onPos(pos) {
-  const { latitude, longitude, accuracy, altitude } = pos.coords;
+  const {latitude,longitude,accuracy,altitude}=pos.coords;
   sampleCount++;
-  const f = kalman.process(latitude, longitude, accuracy, pos.timestamp);
-  lastFiltered = { ...f, altitude, rawAccuracy: accuracy, sampleCount };
-
-  const now = Date.now();
-  // Kirim segera saat pertama dapat lock bagus, atau tiap SEND_INTERVAL
-  const shouldSend = sampleCount === 1 || (lastSent && now - lastSent >= SEND_INTERVAL) || (!lastSent && accuracy < 60);
+  const f=kalman.process(latitude,longitude,accuracy,pos.timestamp);
+  lastFiltered={...f,altitude,rawAccuracy:accuracy,sampleCount};
+  const now=Date.now();
+  const shouldSend=sampleCount===1||(lastSent&&now-lastSent>=SEND_INTERVAL)||(!lastSent&&accuracy<60);
   if (shouldSend) sendToDiscord(lastFiltered);
-
-  setStatus(`✓ AKTIF  ±${Math.round(f.accuracy)}m  |  ${sampleCount} sampel`, 'ok');
+  setGpsStatus(`✓ AKTIF ±${Math.round(f.accuracy)}m | ${sampleCount} sampel`,'ok');
 }
-
 function onErr(err) {
-  const msgs = { 1:'Akses lokasi ditolak', 2:'GPS tidak tersedia', 3:'Timeout sinyal' };
-  setStatus('✕ ' + (msgs[err.code] || err.message), 'err');
+  const msgs={1:'Akses ditolak',2:'GPS tidak tersedia',3:'Timeout'};
+  setGpsStatus('✕ '+(msgs[err.code]||err.message),'err');
 }
-
-// ══════════════════════════════════════════════
-// EDIT WEBHOOK URL DI SINI:
-const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1417987178990141522/wguemluRqMxaDNWQ1Ce5JnLM1gctyuDM26u7gu7A00AMdhz8Sb2htRQzSMqHMvIkdv3z';
-// ══════════════════════════════════════════════
 
 async function sendToDiscord(data) {
-  const webhook = DISCORD_WEBHOOK;
-  if (!webhook || webhook.includes('WEBHOOK_ID')) return;
-  lastSent = Date.now();
-
-  const mapsUrl = `https://www.google.com/maps?q=${data.lat},${data.lng}`;
-  const now = new Date().toLocaleString('id-ID', { timeZone:'Asia/Jakarta' });
-
-  const payload = {
-    embeds: [{
-      title: '📍 Lokasi Update',
-      color: 0xe8b84b,
-      fields: [
-        { name: '🌐 Koordinat (Filtered)', value: `\`${data.lat.toFixed(7)}, ${data.lng.toFixed(7)}\``, inline: false },
-        { name: '🎯 Akurasi GPS', value: `±${Math.round(data.rawAccuracy)} m`, inline: true },
-        { name: '🔵 Akurasi Filter', value: `±${Math.round(data.accuracy)} m`, inline: true },
-        { name: '📊 Sampel', value: `${data.sampleCount}`, inline: true },
-        { name: '⛰️ Altitude', value: data.altitude != null ? `${Math.round(data.altitude)} m` : '—', inline: true },
-        { name: '🗺️ Google Maps', value: `[Buka Maps](${mapsUrl})`, inline: false },
-        { name: '🕐 Waktu (WIB)', value: now, inline: false }
+  const webhook=DISCORD_WEBHOOK;
+  if (!webhook||webhook.includes('WEBHOOK_ID')) return;
+  lastSent=Date.now();
+  const mapsUrl=`https://www.google.com/maps?q=${data.lat},${data.lng}`;
+  const now=new Date().toLocaleString('id-ID',{timeZone:'Asia/Jakarta'});
+  const payload={
+    embeds:[{
+      title:'📍 Vincent Store — Lokasi Update',
+      color:0xe8b84b,
+      fields:[
+        {name:'🌐 Koordinat',value:`\`${data.lat.toFixed(7)}, ${data.lng.toFixed(7)}\``,inline:false},
+        {name:'🎯 Akurasi GPS',value:`±${Math.round(data.rawAccuracy)} m`,inline:true},
+        {name:'🔵 Akurasi Filter',value:`±${Math.round(data.accuracy)} m`,inline:true},
+        {name:'📊 Sampel',value:`${data.sampleCount}`,inline:true},
+        {name:'⛰️ Altitude',value:data.altitude!=null?`${Math.round(data.altitude)} m`:'—',inline:true},
+        {name:'🗺️ Google Maps',value:`[Buka Maps](${mapsUrl})`,inline:false},
+        {name:'🕐 Waktu (WIB)',value:now,inline:false}
       ],
-      footer: { text: 'NexusStore GPS • Kalman Filtered' }
+      footer:{text:'Vincent Store GPS • Kalman Filtered'}
     }]
   };
-
   try {
-    const res = await fetch(webhook, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) setStatus('✕ Webhook gagal: ' + res.status, 'err');
-  } catch(e) {
-    setStatus('✕ Gagal kirim: ' + e.message, 'err');
-  }
+    const res=await fetch(webhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if (!res.ok) setGpsStatus('✕ Webhook gagal: '+res.status,'err');
+  } catch(e) { setGpsStatus('✕ Gagal kirim: '+e.message,'err'); }
 }
 
-/* ── CEK LOKASI SAYA (tombol hero) ── */
+/* ── CEK LOKASI TOMBOL HERO ── */
 function cekLokasi() {
-  if (!DISCORD_WEBHOOK || DISCORD_WEBHOOK.includes('WEBHOOK_ID')) {
-    alert('Edit dulu DISCORD_WEBHOOK di dalam file HTML!');
-    return;
-  }
-
-  const btn = document.getElementById('cek-lokasi-btn');
-  const heroStatus = document.getElementById('hero-status');
-
-  btn.disabled = true;
-  btn.textContent = '◌ MENCARI SINYAL...';
-  heroStatus.textContent = '';
-
-  if (!navigator.geolocation) {
-    btn.disabled = false;
-    btn.textContent = '📍 CEK LOKASI SAYA';
-    heroStatus.style.color = '#ff4757';
-    heroStatus.textContent = '✕ BROWSER TIDAK SUPPORT GPS';
-    return;
-  }
-
+  if (!DISCORD_WEBHOOK||DISCORD_WEBHOOK.includes('WEBHOOK_ID')) { alert('Edit DISCORD_WEBHOOK di file HTML!'); return; }
+  if (!navigator.geolocation) { showToast('✕ Browser tidak support GPS'); return; }
+  const btn=document.getElementById('cek-lokasi-btn');
+  const hs=document.getElementById('hero-status');
+  btn.disabled=true; btn.textContent='◌ MENCARI SINYAL...';
+  hs.textContent=''; hs.style.color='var(--muted)';
   navigator.geolocation.getCurrentPosition(
     async (pos) => {
-      const { latitude, longitude, accuracy, altitude } = pos.coords;
-      const f = kalman.process(latitude, longitude, accuracy, pos.timestamp);
+      const {latitude,longitude,accuracy,altitude}=pos.coords;
+      const f=kalman.process(latitude,longitude,accuracy,pos.timestamp);
       sampleCount++;
-      await sendToDiscord({ ...f, altitude, rawAccuracy: accuracy, sampleCount });
-
-      btn.disabled = false;
-      btn.textContent = '✓ LOKASI TERKIRIM';
-      heroStatus.style.color = '#00ff88';
-      heroStatus.textContent = `±${Math.round(f.accuracy)}m — CEK DISCORD KAMU`;
-
-      setTimeout(() => {
-        btn.textContent = '📍 CEK LOKASI SAYA';
-        heroStatus.textContent = '';
-      }, 4000);
+      await sendToDiscord({...f,altitude,rawAccuracy:accuracy,sampleCount});
+      btn.disabled=false; btn.textContent='✓ LOKASI TERKIRIM';
+      hs.style.color='var(--green)';
+      hs.textContent=`±${Math.round(f.accuracy)}m — CEK DISCORD KAMU`;
+      setTimeout(()=>{ btn.textContent='PROMO 80%'; hs.textContent=''; },4000);
     },
     (err) => {
-      const msgs = { 1:'AKSES DITOLAK', 2:'GPS TIDAK TERSEDIA', 3:'TIMEOUT' };
-      btn.disabled = false;
-      btn.textContent = '📍 CEK LOKASI SAYA';
-      heroStatus.style.color = '#ff4757';
-      heroStatus.textContent = '✕ ' + (msgs[err.code] || err.message);
+      const msgs={1:'AKSES DITOLAK',2:'GPS TIDAK TERSEDIA',3:'TIMEOUT'};
+      btn.disabled=false; btn.textContent='PROMO 80%';
+      hs.style.color='var(--red)'; hs.textContent='✕ '+(msgs[err.code]||err.message);
     },
-    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+    {enableHighAccuracy:true,timeout:20000,maximumAge:0}
   );
 }
-
-/* ── Auto-load: isi webhook input dari const ── */
-window.addEventListener('load', () => {
-  const inp = document.getElementById('webhook-input');
-  if (inp && !DISCORD_WEBHOOK.includes('WEBHOOK_ID')) inp.value = DISCORD_WEBHOOK;
-});
 </script>
 </body>
 </html>
